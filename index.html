@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PolyVis</title>
+</head>
+<body>
+<div id="container"></div>
+<script type="module">
+    import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
+    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+    import { lineChart } from "./drawingUtils.js";
+    import { extractDataFromQuery } from "./dataUtils.js";
+
+    // Prepare Database
+    vg.coordinator().databaseConnector(vg.wasmConnector());
+    vg.coordinator().exec(vg.loadCSV("poly", "http://127.0.0.1:8080/Resources/0000_signals.csv"));
+
+    // Prepare time
+    let time = [];
+    await vg.coordinator().query(vg.Query.from("poly").select("time")).then(res => time = extractDataFromQuery(res));
+    const minTime = Math.min.apply(Math, time);
+    const maxTime = Math.max.apply(Math, time);
+
+    // Prepare SaO2
+    let saO2, oxygenMeasurements = [];
+    await vg.coordinator().query(vg.Query.from("poly").select("SaO2")).then(res => saO2 = extractDataFromQuery(res));
+    const minSaO2 = Math.min.apply(Math, saO2);
+    const maxSaO2 = Math.max.apply(Math, saO2);
+
+    // Prepare EEG
+    let eeg, eegMeasurements = [];
+    await vg.coordinator().query(vg.Query.from("poly").select("EEG")).then(res => eeg = extractDataFromQuery(res));
+    const minEEG = Math.min.apply(Math, eeg);
+    const maxEEG = Math.max.apply(Math, eeg);
+
+    // Prepare THOR RES
+    let thorRes, thorResMeasurements = [];
+    await vg.coordinator().query(vg.Query.from("poly").select("THOR RES")).then(res => thorRes = extractDataFromQuery(res));
+    const minThorRes = Math.min.apply(Math, thorRes);
+    const maxThorRes = Math.max.apply(Math, thorRes);
+
+    // Prepare ABDO RES
+    let abdoRes, abdoResMeasurements = [];
+    await vg.coordinator().query(vg.Query.from("poly").select("ABDO RES")).then(res => abdoRes = extractDataFromQuery(res));
+    const minAbdoRes = Math.min.apply(Math, abdoRes);
+    const maxAbdoRes = Math.max.apply(Math, abdoRes);
+
+    for(let i = 0; i < time.length; i++) {
+        oxygenMeasurements.push({x: time[i], y: saO2[i]});
+        eegMeasurements.push({x: time[i], y: eeg[i]});
+        thorResMeasurements.push({x: time[i], y: thorRes[i]});
+        abdoResMeasurements.push({x: time[i], y:abdoRes[i]});
+    }
+    lineChart(minTime, maxTime, minSaO2, maxSaO2, oxygenMeasurements, '#container');
+    lineChart(minTime, maxTime, minEEG, maxEEG, eegMeasurements, '#container');
+    lineChart(minTime, maxTime, minThorRes, maxThorRes, thorResMeasurements, '#container');
+    lineChart(minTime, maxTime, minAbdoRes, maxAbdoRes, abdoResMeasurements, '#container');
+
+
+    /*
+    NOT WORKING FOR NOW: Vertical line on mouse hover
+    const width = 640;
+    const height = 200;
+    const marginTop = 20;
+    const marginRight = 20;
+    const marginBottom = 30;
+    const marginLeft = 40;
+    // Create the vertical line
+    const verticalLine = d3.selectAll(".chart")
+        .append("line")
+        .attr("class", "vertical-line")
+        .attr("y1", marginTop)
+        .attr("y2", height - marginBottom)
+        .style("display", "none");
+
+    // Add event listeners to each chart
+    d3.selectAll(".chart")
+        .on("mousemove", function(event) {
+            const [mouseX] = d3.pointer(event);
+            console.log(x(mouseX));
+            const xPos = mouseX[0];
+
+            verticalLine.attr("x1", xPos)
+                .attr("x2", xPos)
+                .style("display", null);
+        })
+        .on("mouseleave", function() {
+            verticalLine.style("display", "none");
+        });
+     */
+</script>
+</body>
+</html>
