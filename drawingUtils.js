@@ -98,8 +98,12 @@ export function drawHypnogram(minX, maxX, data, containerId) {
     container.append(() => svg.node());
 }
 
-export function toggleArousalEvents(minX, maxX, displayArousalEvents, data) {
-    displayArousalEvents = !displayArousalEvents;
+export function toggleEvents(minX, maxX, displayEvents, data, className) {
+    displayEvents = !displayEvents;
+    if (d3.selectAll('.vertical-line .' + className).size() !== 0){
+        d3.selectAll('.vertical-line .' + className).style('opacity', `${displayEvents ? 1 : 0}`);
+        return displayEvents;
+    }
     const width = 640;
     const height = 400;
     const marginTop = 20;
@@ -120,14 +124,13 @@ export function toggleArousalEvents(minX, maxX, displayArousalEvents, data) {
         .data(data)
         .enter()
         .append('line')
-        .attr('class', 'vertical-line')
+        .attr('class', 'vertical-line .' + className)
         .attr('x1', d => x(d.x))
         .attr('x2', d => x(d.x))
         .attr('y1', 0)
         .attr('y2', height)
         .attr('stroke', 'green')
-        .attr('stroke-width', 1)
-        .attr('display', `${displayArousalEvents}`);
+        .attr('stroke-width', 1);
 
-    return displayArousalEvents;
+    return displayEvents;
 }

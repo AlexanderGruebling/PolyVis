@@ -7,21 +7,24 @@
 <body>
 <label for="displayArousalEvents">Display Arousal Events</label>
 <input type="checkbox" id="displayArousalEvents"/>
+<label for="displayRespEvents">Display Respiratory Events</label>
+<input type="checkbox" id="displayRespEvents"/>
 <div id="container2"></div>
 <div id="container"></div>
 <script type="module">
     import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-    import { lineChart, drawHypnogram, toggleArousalEvents } from "./drawingUtils.js";
+    import { lineChart, drawHypnogram, toggleEvents } from "./drawingUtils.js";
     import { extractDataFromQuery } from "./dataUtils.js";
 
-    let displayArousalEvents = false;
+    let displayArousalEvents, displayRespEvents = false;
 
     // Prepare Database
     vg.coordinator().databaseConnector(vg.wasmConnector());
     vg.coordinator().exec(vg.loadCSV("poly", "http://127.0.0.1:8080/Resources/0000_signals.csv"));
     vg.coordinator().exec(vg.loadCSV("hypn", "http://127.0.0.1:8080/Resources/0000_hypn.csv"));
     vg.coordinator().exec(vg.loadCSV("arou", "http://127.0.0.1:8080/Resources/0000_arou.csv"));
+    vg.coordinator().exec(vg.loadCSV("resp", "http://127.0.0.1:8080/Resources/0000_resp.csv"));
 
     // Prepare time
     let time = [];
@@ -53,10 +56,15 @@
     const minAbdoRes = Math.min.apply(Math, abdoRes);
     const maxAbdoRes = Math.max.apply(Math, abdoRes);
 
-    // Prepare Arousal Events
+    // Prepare Events
     let arousals, arousalMeasurments = [];
     await vg.coordinator().query(vg.Query.from("arou").select("Sample#"))
         .then(res => arousals = extractDataFromQuery(res)
+            .map(sample => Number(sample)));
+
+    let respEvents, respMeasurements = [];
+    await vg.coordinator().query(vg.Query.from("resp").select("Sample#"))
+        .then(res => respEvents = extractDataFromQuery(res)
             .map(sample => Number(sample)));
 
     for(let i = 0; i < time.length; i++) {
@@ -65,6 +73,7 @@
         thorResMeasurements.push({x: time[i], y: thorRes[i]});
         abdoResMeasurements.push({x: time[i], y:abdoRes[i]});
         arousalMeasurments.push({x: arousals[i]});
+        respMeasurements.push({x: respEvents[i]});
     }
     lineChart(minTime, maxTime, minSaO2, maxSaO2, oxygenMeasurements, '#container');
     lineChart(minTime, maxTime, minEEG, maxEEG, eegMeasurements, '#container');
@@ -74,7 +83,10 @@
     // Prepare EventHandlers
     document.getElementById('displayArousalEvents')
         .addEventListener('click', () =>
-            displayArousalEvents = toggleArousalEvents(minTime, maxTime, displayArousalEvents, arousalMeasurments));
+            displayArousalEvents = toggleEvents(minTime, maxTime, displayArousalEvents, arousalMeasurments, 'arousal'));
+    document.getElementById('displayRespEvents')
+        .addEventListener('click', () =>
+            displayRespEvents = toggleEvents(minTime, maxTime, displayRespEvents, respMeasurements, 'resp'));
 
     // Prepare Hypnogram
     let sleepStage = [];
