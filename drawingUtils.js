@@ -1,4 +1,7 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+
+const colorMap = {resp: 'green', arousal: 'red'};
+
 export function lineChart(minX, maxX, minY, maxY, data, containerId) {
     // Declare the chart dimensions and margins.
     const width = 640;
@@ -75,7 +78,8 @@ export function drawHypnogram(minX, maxX, data, containerId) {
     // Create the SVG container.
     const svg = d3.create("svg")
         .attr("width", width)
-        .attr("height", height);
+        .attr("height", height)
+        .attr("class", "hypno");
 
     // Add the x-axis.
     svg.append("g")
@@ -93,9 +97,39 @@ export function drawHypnogram(minX, maxX, data, containerId) {
         .attr("stroke-width", 1.5)
         .attr("d", line(data));
 
+    const brush = d3.brushX()
+        .extent([[0, 0], [width, height]])
+        .on("brush end", brushed);
+
+    const brushGroup = svg.append("g")
+        .attr("class", "brush")
+        .call(brush);
+
     // Append the SVG element.
     const container = d3.select(containerId);
     container.append(() => svg.node());
+}
+
+function brushed(event) {
+    if (event.selection) {
+        const [x0, x1] = event.selection.map(d3.selectAll(".chart").x.invert);
+        updateSecondChart(x0, x1);
+    }
+}
+
+function updateSecondChart(x0, x1) {
+    const filteredData = d3.selectAll(".chart").data.filter(d => d.time >= x0 && d.time <= x1);
+    updateChart2(filteredData);
+}
+
+function updateChart2(filteredData) {
+    xScale2.domain(d3.extent(filteredData, d => d.date));
+
+    svg2.selectAll(".line")
+        .datum(filteredData)
+        .attr("d", line2);
+
+    svg2.select(".x-axis").call(d3.axisBottom(xScale2));
 }
 
 export function toggleEvents(minX, maxX, displayEvents, data, className) {
@@ -129,7 +163,7 @@ export function toggleEvents(minX, maxX, displayEvents, data, className) {
         .attr('x2', d => x(d.x))
         .attr('y1', 0)
         .attr('y2', height)
-        .attr('stroke', 'green')
+        .attr('stroke', colorMap[className])
         .attr('stroke-width', 1);
 
     return displayEvents;

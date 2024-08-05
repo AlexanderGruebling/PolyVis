@@ -5,12 +5,40 @@
     <title>PolyVis</title>
 </head>
 <body>
-<label for="displayArousalEvents">Display Arousal Events</label>
-<input type="checkbox" id="displayArousalEvents"/>
-<label for="displayRespEvents">Display Respiratory Events</label>
-<input type="checkbox" id="displayRespEvents"/>
-<div id="container2"></div>
-<div id="container"></div>
+<nav>
+    <img src="PolyVisLogo.png" alt="PolyVis Logo" class="logoImg">
+</nav>
+<main>
+    <div class="col-1">
+        <div id="container2"></div>
+        <div id="legend">
+            <div id="controls">
+                <strong>Filters:</strong>
+                <div>
+                    <input type="checkbox" id="displayArousalEvents"/>
+                    <label for="displayArousalEvents">Display Arousal Events</label>
+                    <div id="arouEventsLabel"></div>
+                </div>
+                <div>
+                    <input type="checkbox" id="displayRespEvents"/>
+                    <label for="displayRespEvents">Display Respiratory Events</label>
+                </div>
+            </div>
+            <hr>
+            <strong>Legend:</strong>
+            <ul>
+                <li>W: Wake</li>
+                <li>R: REM (Rapid Eye Movement)</li>
+                <li>1: First stage of deep sleep</li>
+                <li>2: Second stage of deep sleep</li>
+                <li>3: Third stage of deep sleep</li>
+                <li>4: Fourth stage of deep sleep</li>
+            </ul>
+        </div>
+    </div>
+    <div id="container"></div>
+    <div id="container3"></div>
+</main>
 <script type="module">
     import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
     import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
@@ -143,6 +171,49 @@
         display: flex;
         flex-direction: column;
         max-width: 640px;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, serif;
+    }
+
+    main {
+        padding: 1vw;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    nav {
+        background-color: #209CEE;
+        height: 3rem;
+        padding: 0.5rem;
+    }
+
+    hr {
+        color: #209CEE;
+    }
+
+    .logoImg {
+        max-height: 3rem;
+    }
+
+    #legend {
+        border: 5px solid #209CEE;
+        border-radius: 15px;
+        background-color: #ededed;
+        padding: 1vw;
+    }
+
+    #controls {
+        display: flex;
+        flex-direction: column;
+    }
+
+    #arouEventsLabel {
+        width: 25px;
+        height: 10px;
+        background-color: red;
     }
 </style>
 </body>
