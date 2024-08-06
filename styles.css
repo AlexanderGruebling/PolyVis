@@ -1,0 +1,48 @@
+#container {
+    display: flex;
+    flex-direction: column;
+    max-width: 640px;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, serif;
+}
+
+main {
+    padding: 1vw;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+}
+
+nav {
+    background-color: #209CEE;
+    height: 3rem;
+    padding: 0.5rem;
+}
+
+hr {
+    color: #209CEE;
+}
+
+.logoImg {
+    max-height: 3rem;
+}
+
+#legend {
+    border: 5px solid #209CEE;
+    border-radius: 15px;
+    background-color: #ededed;
+    padding: 1vw;
+}
+
+#controls {
+    display: flex;
+    flex-direction: column;
+}
+
+#arouEventsLabel {
+    width: 25px;
+    height: 10px;
+    background-color: red;
+}
