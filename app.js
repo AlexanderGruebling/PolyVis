@@ -1,4 +1,4 @@
-import { lineChart, drawHypnogram, toggleEvents } from "./drawingUtils.js";
+import { lineChart, drawHypnogram,toggleEvents } from "./drawingUtils.js";
 import { initializeDatabase, initializeData, hypnoAnnotations, measurements, events } from "./dataUtils.js";
 
 initializeDatabase();
@@ -12,18 +12,22 @@ for(let [measurement, value] of Object.entries(measurements)) {
     }
     lineChart(measurements.time.min, measurements.time.max, value.min, value.max, value.values, '#container');
 }
-drawHypnogram(hypnoAnnotations.samples.min, hypnoAnnotations.samples.max, hypnoAnnotations.annotations, '#container2');
+const hypno = drawHypnogram(hypnoAnnotations.samples.min, hypnoAnnotations.samples.max, hypnoAnnotations.annotations, '#container2');
 
 // Prepare EventHandlers
 document.getElementById('displayArousalEvents')
-    .addEventListener('click', () =>
-        displayArousalEvents = toggleEvents(
-            measurements.time.min,
-            measurements.time.max,
-            displayArousalEvents,
-            events.arousal.values,
-            'arousal')
+    .addEventListener('click', () => {
+            console.log(displayArousalEvents);
+            displayArousalEvents = toggleEvents(
+                measurements.time.min,
+                measurements.time.max,
+                displayArousalEvents,
+                events.arousal.values,
+                'arousal')
+        }
     );
+
+
 document.getElementById('displayRespEvents')
     .addEventListener('click', () =>
         displayRespEvents = toggleEvents(

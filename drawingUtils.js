@@ -86,6 +86,7 @@ export function drawHypnogram(minX, maxX, data, containerId) {
     // Add the x-axis.
     const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
+        .attr("class", "hypno-x-axis")
         .call(d3.axisBottom(x));
 
     // Add the y-axis.
@@ -97,26 +98,28 @@ export function drawHypnogram(minX, maxX, data, containerId) {
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("stroke-width", 1.5)
+        .attr("class", "hypno-path")
         .attr("d", line(data));
 
     // Append the SVG element.
     const container = d3.select(containerId);
     container.append(() => svg.node());
 
-    // Add zooming
     const zoom = d3.zoom()
         .scaleExtent([1, 8])
         .translateExtent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
         .on("zoom", event => {
             const newX = event.transform.rescaleX(x);
-            xAxis.call(d3.axisBottom(newX));
-            path.attr("d", d3.line()
+            svg.select(".hypno-x-axis").call(d3.axisBottom(newX));
+            svg.select(".hypno-path").attr("d", d3.line()
                 .x(d => newX(d.x))
                 .y(d => y(d.y))(data));
-            updateOtherCharts(newX);
+            // updateOtherCharts(newX);
         });
 
     svg.call(zoom);
+
+    return svg;
 }
 
 function updateOtherCharts(newX) {
@@ -147,37 +150,53 @@ function updateOtherCharts(newX) {
 
 export function toggleEvents(minX, maxX, displayEvents, data, className) {
     displayEvents = !displayEvents;
-    if (d3.selectAll('.vertical-line .' + className).size() !== 0){
-        d3.selectAll('.vertical-line .' + className).style('opacity', `${displayEvents ? 1 : 0}`);
-        return displayEvents;
-    }
+
     const width = 640;
     const height = 400;
     const marginTop = 20;
     const marginRight = 20;
     const marginBottom = 30;
     const marginLeft = 40;
+
     const x = d3.scaleLinear()
         .domain([minX, maxX])
         .range([marginLeft, width - marginRight]);
-    const svg = d3.selectAll('.chart')
-        .append('svg')
-        .attr('width', width + marginLeft + marginRight)
-        .attr('height', height + marginTop + marginBottom)
-        .append('g')
-        .attr('transform', `translate(${marginLeft},${marginTop})`);
 
-    svg.selectAll('.vertical-line')
-        .data(data)
-        .enter()
-        .append('line')
-        .attr('class', 'vertical-line .' + className)
-        .attr('x1', d => x(d.x))
-        .attr('x2', d => x(d.x))
-        .attr('y1', 0)
-        .attr('y2', height)
-        .attr('stroke', colorMap[className])
-        .attr('stroke-width', 1);
+    const svg = d3.select('.chart')
+        .select('svg');
+
+    if (svg.empty()) {
+        // If the SVG does not exist, create it
+        d3.select('.chart')
+            .append('svg')
+            .attr('width', width + marginLeft + marginRight)
+            .attr('height', height + marginTop + marginBottom)
+            .append('g')
+            .attr('transform', `translate(${marginLeft},${marginTop})`);
+    }
+
+    const lines = svg.selectAll('.vertical-line.' + className);
+
+    if (lines.empty()) {
+        // If the lines do not exist, create them
+        svg.selectAll('.vertical-line.' + className)
+            .data(data)
+            .enter()
+            .append('line')
+            .attr('class', 'vertical-line ' + className)
+            .attr('x1', d => x(d.x))
+            .attr('x2', d => x(d.x))
+            .attr('y1', 0)
+            .attr('y2', height)
+            .attr('stroke', colorMap[className])
+            .attr('stroke-width', 1);
+    }
+
+    // Toggle the visibility of the lines
+    svg.selectAll('.vertical-line.' + className)
+        .style('display', displayEvents ? null : 'none');
 
     return displayEvents;
 }
+
+
