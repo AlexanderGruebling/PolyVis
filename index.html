@@ -40,99 +40,30 @@
     <div id="container3"></div>
 </main>
 <script type="module">
-    import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
-    import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
     import { lineChart, drawHypnogram, toggleEvents } from "./drawingUtils.js";
-    import { extractDataFromQuery } from "./dataUtils.js";
+    import { initializeDatabase, initializeData, hypnoAnnotations, measurements } from "./dataUtils.js";
 
-    let displayArousalEvents, displayRespEvents = false;
+    initializeDatabase();
+    await initializeData();
 
-    // Prepare Database
-    vg.coordinator().databaseConnector(vg.wasmConnector());
-    vg.coordinator().exec(vg.loadCSV("poly", "http://127.0.0.1:8080/Resources/0000_signals.csv"));
-    vg.coordinator().exec(vg.loadCSV("hypn", "http://127.0.0.1:8080/Resources/0000_hypn.csv"));
-    vg.coordinator().exec(vg.loadCSV("arou", "http://127.0.0.1:8080/Resources/0000_arou.csv"));
-    vg.coordinator().exec(vg.loadCSV("resp", "http://127.0.0.1:8080/Resources/0000_resp.csv"));
-
-    // Prepare time
-    let time = [];
-    await vg.coordinator().query(vg.Query.from("poly").select("time")).then(res => time = extractDataFromQuery(res));
-    const minTime = Math.min.apply(Math, time);
-    const maxTime = Math.max.apply(Math, time);
-
-    // Prepare SaO2
-    let saO2, oxygenMeasurements = [];
-    await vg.coordinator().query(vg.Query.from("poly").select("SaO2")).then(res => saO2 = extractDataFromQuery(res));
-    const minSaO2 = Math.min.apply(Math, saO2);
-    const maxSaO2 = Math.max.apply(Math, saO2);
-
-    // Prepare EEG
-    let eeg, eegMeasurements = [];
-    await vg.coordinator().query(vg.Query.from("poly").select("EEG")).then(res => eeg = extractDataFromQuery(res));
-    const minEEG = Math.min.apply(Math, eeg);
-    const maxEEG = Math.max.apply(Math, eeg);
-
-    // Prepare THOR RES
-    let thorRes, thorResMeasurements = [];
-    await vg.coordinator().query(vg.Query.from("poly").select("THOR RES")).then(res => thorRes = extractDataFromQuery(res));
-    const minThorRes = Math.min.apply(Math, thorRes);
-    const maxThorRes = Math.max.apply(Math, thorRes);
-
-    // Prepare ABDO RES
-    let abdoRes, abdoResMeasurements = [];
-    await vg.coordinator().query(vg.Query.from("poly").select("ABDO RES")).then(res => abdoRes = extractDataFromQuery(res));
-    const minAbdoRes = Math.min.apply(Math, abdoRes);
-    const maxAbdoRes = Math.max.apply(Math, abdoRes);
-
-    // Prepare Events
-    let arousals, arousalMeasurments = [];
-    await vg.coordinator().query(vg.Query.from("arou").select("Sample#"))
-        .then(res => arousals = extractDataFromQuery(res)
-            .map(sample => Number(sample)));
-
-    let respEvents, respMeasurements = [];
-    await vg.coordinator().query(vg.Query.from("resp").select("Sample#"))
-        .then(res => respEvents = extractDataFromQuery(res)
-            .map(sample => Number(sample)));
-
-    for(let i = 0; i < time.length; i++) {
-        oxygenMeasurements.push({x: time[i], y: saO2[i]});
-        eegMeasurements.push({x: time[i], y: eeg[i]});
-        thorResMeasurements.push({x: time[i], y: thorRes[i]});
-        abdoResMeasurements.push({x: time[i], y:abdoRes[i]});
-        arousalMeasurments.push({x: arousals[i]});
-        respMeasurements.push({x: respEvents[i]});
+    for(let [measurement, value] of Object.entries(measurements)) {
+        if (measurement === 'time') {
+            continue;
+        }
+        lineChart(measurements.time.min, measurements.time.max, value.min, value.max, value.values, '#container');
     }
-    lineChart(minTime, maxTime, minSaO2, maxSaO2, oxygenMeasurements, '#container');
-    lineChart(minTime, maxTime, minEEG, maxEEG, eegMeasurements, '#container');
-    lineChart(minTime, maxTime, minThorRes, maxThorRes, thorResMeasurements, '#container');
-    lineChart(minTime, maxTime, minAbdoRes, maxAbdoRes, abdoResMeasurements, '#container');
+    drawHypnogram(hypnoAnnotations.samples.min, hypnoAnnotations.samples.max, hypnoAnnotations.annotations, '#container2');
 
     // Prepare EventHandlers
-    document.getElementById('displayArousalEvents')
-        .addEventListener('click', () =>
-            displayArousalEvents = toggleEvents(minTime, maxTime, displayArousalEvents, arousalMeasurments, 'arousal'));
-    document.getElementById('displayRespEvents')
-        .addEventListener('click', () =>
-            displayRespEvents = toggleEvents(minTime, maxTime, displayRespEvents, respMeasurements, 'resp'));
+    // document.getElementById('displayArousalEvents')
+    //     .addEventListener('click', () =>
+    //        displayArousalEvents = toggleEvents(minTime, maxTime, displayArousalEvents, arousalMeasurments, 'arousal'));
+    // document.getElementById('displayRespEvents')
+    //     .addEventListener('click', () =>
+    //        displayRespEvents = toggleEvents(minTime, maxTime, displayRespEvents, respMeasurements, 'resp'));
 
     // Prepare Hypnogram
-    let sleepStage = [];
-    let samples = [];
-    let hypnoAnnotations = [];
-    await vg.coordinator().query(vg.Query.from("hypn").select("Aux"))
-        .then(res => sleepStage = extractDataFromQuery(res)
-            .map(stage => String.fromCharCode(stage)));
-    await vg.coordinator().query(vg.Query.from("hypn").select("Sample#"))
-        .then(res => samples = extractDataFromQuery(res)
-            .map(sample => Number(sample)));
-    const minSample = Math.min.apply(Math, samples);
-    const maxSample = Math.max.apply(Math, samples);
-
-    for (let i = 0; i < samples.length; i++) {
-        hypnoAnnotations.push({x: samples[i], y: sleepStage[i]});
-    }
-    drawHypnogram(minSample, maxSample, hypnoAnnotations, '#container2');
+    // drawHypnogram(minSample, maxSample, hypnoAnnotations, '#container2');
 
     /*
     NOT WORKING FOR NOW: Vertical line on mouse hover

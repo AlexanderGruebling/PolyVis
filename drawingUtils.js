@@ -1,6 +1,11 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
+import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
+import { extractDataFromQuery } from "./dataUtils.js";
 
 const colorMap = {resp: 'green', arousal: 'red'};
+
+
+
 
 export function lineChart(minX, maxX, minY, maxY, data, containerId) {
     // Declare the chart dimensions and margins.
@@ -82,54 +87,65 @@ export function drawHypnogram(minX, maxX, data, containerId) {
         .attr("class", "hypno");
 
     // Add the x-axis.
-    svg.append("g")
+    const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
         .call(d3.axisBottom(x));
 
     // Add the y-axis.
-    svg.append("g")
+    const yAxis = svg.append("g")
         .attr("transform", `translate(${marginLeft},0)`)
         .call(d3.axisLeft(y));
 
-    svg.append("path")
+    const path = svg.append("path")
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("stroke-width", 1.5)
         .attr("d", line(data));
 
-    const brush = d3.brushX()
-        .extent([[0, 0], [width, height]])
-        .on("brush end", brushed);
-
-    const brushGroup = svg.append("g")
-        .attr("class", "brush")
-        .call(brush);
-
     // Append the SVG element.
     const container = d3.select(containerId);
     container.append(() => svg.node());
+
+    // Add zooming
+    const zoom = d3.zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([[marginLeft, marginTop], [width - marginRight, height - marginBottom]])
+        .on("zoom", event => {
+            const newX = event.transform.rescaleX(x);
+            xAxis.call(d3.axisBottom(newX));
+            path.attr("d", d3.line()
+                .x(d => newX(d.x))
+                .y(d => y(d.y))(data));
+            updateOtherCharts(newX);
+        });
+
+    svg.call(zoom);
 }
 
-function brushed(event) {
-    if (event.selection) {
-        const [x0, x1] = event.selection.map(d3.selectAll(".chart").x.invert);
-        updateSecondChart(x0, x1);
-    }
-}
+function updateOtherCharts(newX) {
+    const width = 640;
+    const height = 200;
+    const marginTop = 20;
+    const marginRight = 20;
+    const marginBottom = 30;
+    const marginLeft = 40;
+    // Select all charts with the .chart class
+    d3.selectAll(".chart").each(function() {
+        const chart = d3.select(this);
+        const yScale = d3.scaleLinear()
+            .domain([0, 100]) // Adjust domain as needed
+            .range([height - marginBottom, marginTop]);
 
-function updateSecondChart(x0, x1) {
-    const filteredData = d3.selectAll(".chart").data.filter(d => d.time >= x0 && d.time <= x1);
-    updateChart2(filteredData);
-}
+        const line = d3.line()
+            .x(d => newX(d.x))
+            .y(d => yScale(d.y));
 
-function updateChart2(filteredData) {
-    xScale2.domain(d3.extent(filteredData, d => d.date));
+        // Update the x-axis
+        chart.select(".x-axis").call(d3.axisBottom(newX));
 
-    svg2.selectAll(".line")
-        .datum(filteredData)
-        .attr("d", line2);
-
-    svg2.select(".x-axis").call(d3.axisBottom(xScale2));
+        // Update the path
+        chart.select("path").attr("d", line(data));
+    });
 }
 
 export function toggleEvents(minX, maxX, displayEvents, data, className) {
