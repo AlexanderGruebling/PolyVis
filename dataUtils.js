@@ -56,8 +56,6 @@ export function initializeDatabase() {
 }
 
 export async function initializeData() {
-    let displayArousalEvents, displayRespEvents = false;
-
     // Prepare time
     let time = [];
     await vg.coordinator().query(vg.Query.from("poly").select("time")).then(res => time = extractDataFromQuery(res));
@@ -88,6 +86,13 @@ export async function initializeData() {
     measurements.abdoRes.min = Math.min.apply(Math, abdoRes);
     measurements.abdoRes.max = Math.max.apply(Math, abdoRes);
 
+    for(let i = 0; i < time.length; i++) {
+        measurements.oxygen.values.push({x: time[i], y: saO2[i]});
+        measurements.eeg.values.push({x: time[i], y: eeg[i]});
+        measurements.thorRes.values.push({x: time[i], y: thorRes[i]});
+        measurements.abdoRes.values.push({x: time[i], y:abdoRes[i]});
+    }
+
     // Prepare Events
     let arousals = [];
     await vg.coordinator().query(vg.Query.from("arou").select("Sample#"))
@@ -99,12 +104,10 @@ export async function initializeData() {
         .then(res => respEvents = extractDataFromQuery(res)
             .map(sample => Number(sample)));
 
-    for(let i = 0; i < time.length; i++) {
-        measurements.oxygen.values.push({x: time[i], y: saO2[i]});
-        measurements.eeg.values.push({x: time[i], y: eeg[i]});
-        measurements.thorRes.values.push({x: time[i], y: thorRes[i]});
-        measurements.abdoRes.values.push({x: time[i], y:abdoRes[i]});
+    for (let i = 0; i < arousals.length; i++) {
         events.arousal.values.push({x: arousals[i]});
+    }
+    for (let i = 0; i < respEvents.length; i++) {
         events.resp.values.push({x: respEvents[i]});
     }
 

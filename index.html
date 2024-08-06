@@ -41,10 +41,13 @@
 </main>
 <script type="module">
     import { lineChart, drawHypnogram, toggleEvents } from "./drawingUtils.js";
-    import { initializeDatabase, initializeData, hypnoAnnotations, measurements } from "./dataUtils.js";
+    import { initializeDatabase, initializeData, hypnoAnnotations, measurements, events } from "./dataUtils.js";
 
     initializeDatabase();
     await initializeData();
+
+    console.log(events);
+    let displayArousalEvents, displayRespEvents = false;
 
     for(let [measurement, value] of Object.entries(measurements)) {
         if (measurement === 'time') {
@@ -55,15 +58,24 @@
     drawHypnogram(hypnoAnnotations.samples.min, hypnoAnnotations.samples.max, hypnoAnnotations.annotations, '#container2');
 
     // Prepare EventHandlers
-    // document.getElementById('displayArousalEvents')
-    //     .addEventListener('click', () =>
-    //        displayArousalEvents = toggleEvents(minTime, maxTime, displayArousalEvents, arousalMeasurments, 'arousal'));
-    // document.getElementById('displayRespEvents')
-    //     .addEventListener('click', () =>
-    //        displayRespEvents = toggleEvents(minTime, maxTime, displayRespEvents, respMeasurements, 'resp'));
-
-    // Prepare Hypnogram
-    // drawHypnogram(minSample, maxSample, hypnoAnnotations, '#container2');
+    document.getElementById('displayArousalEvents')
+         .addEventListener('click', () =>
+            displayArousalEvents = toggleEvents(
+                measurements.time.min,
+                measurements.time.max,
+                displayArousalEvents,
+                events.arousal.values,
+                'arousal')
+         );
+     document.getElementById('displayRespEvents')
+         .addEventListener('click', () =>
+            displayRespEvents = toggleEvents(
+                measurements.time.min,
+                measurements.time.max,
+                displayRespEvents,
+                events.resp.values,
+                'resp')
+         );
 
     /*
     NOT WORKING FOR NOW: Vertical line on mouse hover

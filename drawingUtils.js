@@ -4,9 +4,6 @@ import { extractDataFromQuery } from "./dataUtils.js";
 
 const colorMap = {resp: 'green', arousal: 'red'};
 
-
-
-
 export function lineChart(minX, maxX, minY, maxY, data, containerId) {
     // Declare the chart dimensions and margins.
     const width = 640;
