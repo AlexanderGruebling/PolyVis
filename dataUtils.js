@@ -25,18 +25,15 @@ export let measurements = {
         max: 0,
         values: []
     },
+};
+export let events = {
     arousal: {
-        min: 0,
-        max: 0,
         values: []
     },
     resp: {
-        min: 0,
-        max: 0,
         values: []
     }
-};
-
+}
 export let hypnoAnnotations = {
     sleepStages: {
         values: []
@@ -107,8 +104,8 @@ export async function initializeData() {
         measurements.eeg.values.push({x: time[i], y: eeg[i]});
         measurements.thorRes.values.push({x: time[i], y: thorRes[i]});
         measurements.abdoRes.values.push({x: time[i], y:abdoRes[i]});
-        measurements.arousal.values.push({x: arousals[i]});
-        measurements.resp.values.push({x: respEvents[i]});
+        events.arousal.values.push({x: arousals[i]});
+        events.resp.values.push({x: respEvents[i]});
     }
 
     await vg.coordinator().query(vg.Query.from("hypn").select("Aux"))
