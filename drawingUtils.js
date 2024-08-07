@@ -1,22 +1,32 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import * as vg from "./node_modules/@uwdata/vgplot/dist/vgplot.js";
-import { extractDataFromQuery } from "./dataUtils.js";
+
+// Default settings to be overwritten in functions
+export const width = 640;
+export const height = 400;
+const marginTop = 20;
+const marginRight = 20;
+const marginBottom = 30;
+const marginLeft = 40;
 
 const colorMap = {resp: 'green', arousal: 'red'};
+let polyXAxis;
 
-export function lineChart(minX, maxX, minY, maxY, data, containerId) {
-    // Declare the chart dimensions and margins.
-    const width = 640;
-    const height = 200;
-    const marginTop = 20;
-    const marginRight = 20;
-    const marginBottom = 30;
-    const marginLeft = 40;
-
-    // Declare the x (horizontal position) scale.
-    const x = d3.scaleLinear()
+export function initializeCommonXAxis(minX, maxX) {
+    polyXAxis = d3.scaleLinear()
         .domain([minX, maxX])
         .range([marginLeft, width - marginRight]);
+    return polyXAxis;
+}
+
+export function lineChart(minY, maxY, data, containerId) {
+    const height = 200;
+
+    // Original domains for resetting.
+    const originalXDomain = d3.extent(data, d => d.x);
+    const originalYDomain = [minY, maxY];
+
+    // Declare the x (horizontal position) scale.
+    const x = polyXAxis;
 
     // Declare the y (vertical position) scale.
     const y = d3.scaleLinear()
@@ -34,35 +44,55 @@ export function lineChart(minX, maxX, minY, maxY, data, containerId) {
         .attr("class", "chart");
 
     // Add the x-axis.
-    svg.append("g")
+    const xAxis = svg.append("g")
         .attr("transform", `translate(0,${height - marginBottom})`)
         .call(d3.axisBottom(x));
 
     // Add the y-axis.
-    svg.append("g")
+    const yAxis = svg.append("g")
         .attr("transform", `translate(${marginLeft},0)`)
         .call(d3.axisLeft(y));
 
-    svg.append("path")
+    const path = svg.append("path")
         .attr("fill", "none")
         .attr("stroke", "black")
         .attr("stroke-width", 1.5)
-        .attr("d", line(data))
+        .attr("d", line(data));
 
     // Append the SVG element.
     const container = d3.select(containerId);
     container.append(() => svg.node());
+
+    svg.on("dblclick", () => {
+        // Reset the x scale domain to the original domain.
+        x.domain(originalXDomain);
+
+        // Reset the y scale domain to the original domain.
+        y.domain(originalYDomain);
+
+        // Update the x-axis.
+        xAxis.transition().duration(500).call(d3.axisBottom(x));
+
+        // Update the y-axis.
+        yAxis.transition().duration(500).call(d3.axisLeft(y));
+
+        // Update the line path with the full data.
+        path.datum(data).transition().duration(500).attr("d", line);
+
+        // Clear the brush selection.
+        brushGroup.call(brush.move, null);
+    });
+
+    return {
+        svg: svg,
+        path: path,
+        x: x,
+        xAxis: xAxis,
+        line: line
+    }
 }
 
 export function drawHypnogram(minX, maxX, data, containerId) {
-    // Declare the chart dimensions and margins.
-    const width = 640;
-    const height = 400;
-    const marginTop = 20;
-    const marginRight = 20;
-    const marginBottom = 30;
-    const marginLeft = 40;
-
     // Declare the x (horizontal position) scale.
     const x = d3.scaleLinear()
         .domain([minX, maxX])
@@ -77,11 +107,8 @@ export function drawHypnogram(minX, maxX, data, containerId) {
         .x(d => x(d.x))
         .y(d => y(d.y));
 
-    // Create the SVG container.
-    const svg = d3.create("svg")
-        .attr("width", width)
-        .attr("height", height)
-        .attr("class", "hypno");
+    // Get the SVG container.
+    const svg = d3.select(".hypno");
 
     // Add the x-axis.
     const xAxis = svg.append("g")
@@ -100,10 +127,6 @@ export function drawHypnogram(minX, maxX, data, containerId) {
         .attr("stroke-width", 1.5)
         .attr("class", "hypno-path")
         .attr("d", line(data));
-
-    // Append the SVG element.
-    const container = d3.select(containerId);
-    container.append(() => svg.node());
 
     const zoom = d3.zoom()
         .scaleExtent([1, 8])
@@ -150,13 +173,6 @@ function updateOtherCharts(newX) {
 
 export function toggleEvents(minX, maxX, displayEvents, data, className) {
     displayEvents = !displayEvents;
-
-    const width = 640;
-    const height = 400;
-    const marginTop = 20;
-    const marginRight = 20;
-    const marginBottom = 30;
-    const marginLeft = 40;
 
     const x = d3.scaleLinear()
         .domain([minX, maxX])
