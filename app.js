@@ -1,65 +1,75 @@
 import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import {lineChart, drawHypnogram, toggleEvents, initializeCommonXAxis, width, height} from "./drawingUtils.js";
-import { initializeDatabase, initializeData, hypnoAnnotations, measurements, events } from "./dataUtils.js";
+import {
+    lineChart,
+    drawHypnogram,
+    toggleEvents,
+    initializeCommonXAxis,
+    width,
+    height
+} from "./drawingUtils.js";
+import {
+    initializeDatabase,
+    initializeData,
+    hypnoAnnotations,
+    measurements,
+    events
+} from "./dataUtils.js";
 
+// Initialize database and data
 initializeDatabase();
 await initializeData();
-let polyXAxis = initializeCommonXAxis(measurements.time.min, measurements.time.max);
-console.log(polyXAxis);
 
-let displayArousalEvents, displayRespEvents = false;
+// Initialize a common x-axis scale for polygrams
+let polyXAxis = initializeCommonXAxis(measurements.time.min, measurements.time.max);
+let displayArousalEvents = false, displayRespEvents = false;
 const polygram = [];
 
-for(let [measurement, value] of Object.entries(measurements)) {
-    if (measurement === 'time') {
-        continue;
+// Create line charts for each measurement (excluding 'time')
+Object.entries(measurements).forEach(([measurement, value]) => {
+    if (measurement !== 'time') {
+        let title = document.createElement('h4');
+        title.innerText = value.title
+        document.getElementById('container').appendChild(title);
+        let svg = lineChart(value.min, value.max, value.values, '#container');
+        polygram.push(svg);
     }
-    let svg = lineChart(value.min, value.max, value.values, '#container');
-    addBrush(svg, value.values);
-}
-
-function addBrush(svg, data) {
-    const brush = d3.brushX()
-        .extent([[0, 0], [width, height]])
-        .on("end", (event) => {
-            if (event.selection) {
-                const [x0, x1] = event.selection.map(svg.x.invert);
-                const filteredData = data.filter(d => d.x >= x0 && d.x <= x1);
-                svg.x.domain([x0, x1]);
-                svg.xAxis.transition().duration(500).call(d3.axisBottom(svg.x));
-                svg.path.datum(filteredData).transition().duration(500).attr("d", svg.line);
-                brushGroup.call(brush.move, null);
-            }
-        });
-    const brushGroup = svg.svg.append("g")
-        .attr("class", "brush")
-        .call(brush);
-}
+});
 
 
+// Draw the hypnogram in a separate container
+let title = document.createElement("h4");
+title.innerText = "Hypnogram";
+document.getElementById('container2').insertAdjacentElement('afterbegin', title);
+const hypno = drawHypnogram(
+    hypnoAnnotations.samples.min,
+    hypnoAnnotations.samples.max,
+    hypnoAnnotations.annotations,
+    '#container2'
+);
 
-const hypno = drawHypnogram(hypnoAnnotations.samples.min, hypnoAnnotations.samples.max, hypnoAnnotations.annotations, '#container2');
+// Set up event handlers for toggling event displays
+setupEventHandlers();
 
-// Prepare EventHandlers
-document.getElementById('displayArousalEvents')
-    .addEventListener('click', () => {
-            console.log(displayArousalEvents);
+function setupEventHandlers() {
+    document.getElementById('displayArousalEvents')
+        .addEventListener('click', () => {
             displayArousalEvents = toggleEvents(
                 measurements.time.min,
                 measurements.time.max,
                 displayArousalEvents,
                 events.arousal.values,
-                'arousal')
-        }
-    );
+                'arousal'
+            );
+        });
 
-
-document.getElementById('displayRespEvents')
-    .addEventListener('click', () =>
-        displayRespEvents = toggleEvents(
-            measurements.time.min,
-            measurements.time.max,
-            displayRespEvents,
-            events.resp.values,
-            'resp')
-    );
+    document.getElementById('displayRespEvents')
+        .addEventListener('click', () => {
+            displayRespEvents = toggleEvents(
+                measurements.time.min,
+                measurements.time.max,
+                displayRespEvents,
+                events.resp.values,
+                'resp'
+            );
+        });
+}

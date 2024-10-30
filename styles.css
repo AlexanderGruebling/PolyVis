@@ -41,8 +41,23 @@ hr {
     flex-direction: column;
 }
 
+#controls > div {
+    display: flex;
+    align-items: center;
+}
+
 #arouEventsLabel {
-    width: 25px;
-    height: 10px;
-    background-color: red;
+    width: 15px;
+    height: 15px;
+    margin-left: 0.5rem;
+    background-color: #ff8a65;
+    border: 1px solid black;
+}
+
+#respEventsLabel {
+    width: 15px;
+    height: 15px;
+    margin-left: 0.5rem;
+    background-color: #4db6ac;
+    border: 1px solid black;
 }

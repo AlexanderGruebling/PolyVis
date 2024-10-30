@@ -8,22 +8,26 @@ export let measurements = {
     oxygen: {
         min: 0,
         max: 0,
-        values: []
+        values: [],
+        title: 'Sa02'
     },
     eeg: {
         min: 0,
         max: 0,
-        values: []
+        values: [],
+        title: 'EEG'
     },
     thorRes: {
         min: 0,
         max: 0,
-        values: []
+        values: [],
+        title: 'ThorRes'
     },
     abdoRes: {
         min: 0,
         max: 0,
-        values: []
+        values: [],
+        title: 'AbdoRes'
     },
 };
 export let events = {
