@@ -1,75 +1,92 @@
-import * as d3 from "https://cdn.jsdelivr.net/npm/d3@7/+esm";
-import {
-    lineChart,
-    drawHypnogram,
-    toggleEvents,
-    initializeCommonXAxis,
-    width,
-    height
-} from "./drawingUtils.js";
-import {
-    initializeDatabase,
-    initializeData,
-    hypnoAnnotations,
-    measurements,
-    events
-} from "./dataUtils.js";
+import * as d3 from "d3";
+import * as vg from "@uwdata/vgplot";
+import signalsUrl from "/Resources/0000_signals.csv?url";
+import hypnUrl from "/Resources/0000_hypn.csv?url";
+import arouUrl from "/Resources/0000_arou.csv?url";
+import respUrl from "/Resources/0000_resp.csv?url";
+import { drawLineChart, updateLineChart } from './drawingUtils.js';
+import { loadData } from './dataUtils.js';
 
-// Initialize database and data
-initializeDatabase();
-await initializeData();
+console.log(signalsUrl)
+vg.coordinator().databaseConnector(vg.wasmConnector());
+vg.coordinator().exec(vg.loadCSV("signal", "http://127.0.0.1:5173" + signalsUrl));
+vg.coordinator().exec(vg.loadCSV("hypn", "http://127.0.0.1:5173" + hypnUrl));
+vg.coordinator().exec(vg.loadCSV("arou", "http://127.0.0.1:5173" + arouUrl));
+vg.coordinator().exec(vg.loadCSV("resp", "http://127.0.0.1:5173" + respUrl));
 
-// Initialize a common x-axis scale for polygrams
-let polyXAxis = initializeCommonXAxis(measurements.time.min, measurements.time.max);
-let displayArousalEvents = false, displayRespEvents = false;
-const polygram = [];
+const $xs = vg.Selection.intersect();
+const $dispArou = vg.Param.value(0);
+const $dispResp = vg.Param.value(0);
+const $oxygenThreshold = vg.Param.value(0);
+const $point = vg.Param.value(10);
+const $hypnPoint = vg.Param.value(0)
 
-// Create line charts for each measurement (excluding 'time')
-Object.entries(measurements).forEach(([measurement, value]) => {
-    if (measurement !== 'time') {
-        let title = document.createElement('h4');
-        title.innerText = value.title
-        document.getElementById('container').appendChild(title);
-        let svg = lineChart(value.min, value.max, value.values, '#container');
-        polygram.push(svg);
-    }
-});
-
-
-// Draw the hypnogram in a separate container
-let title = document.createElement("h4");
-title.innerText = "Hypnogram";
-document.getElementById('container2').insertAdjacentElement('afterbegin', title);
-const hypno = drawHypnogram(
-    hypnoAnnotations.samples.min,
-    hypnoAnnotations.samples.max,
-    hypnoAnnotations.annotations,
-    '#container2'
+document.getElementById('container2').appendChild(
+    vg.plot(
+        vg.line(
+            vg.from("hypn"),
+            {x: "Sample#", y: "Aux"}
+        ),
+        // vg.nearestX({as: $hypnPoint}),
+        // vg.ruleX({x: $hypnPoint}),
+        // // vg.textX({x: $point, text: $point, frameAnchor: "top", lineAnchor: "bottom"}),
+        // vg.height(400)
+    )
 );
 
-// Set up event handlers for toggling event displays
-setupEventHandlers();
+document.getElementById('saO2').appendChild(
+        vg.plot(
+            vg.line(
+                vg.from("signal", {filterBy: $oxygenThreshold}),
+                {
+                    x: "time",
+                    y: "SaO2",
+                }
+            ),
+            // vg.ruleX({x: $point}),
+            // vg.textX({x: $point, text: $point, frameAnchor: "top", lineAnchor: "bottom", dy: -7}),
+            // vg.ruleX(
+            //     vg.from("arou"),
+            //     { x: "Sample#", stroke: "#cba6f7", strokeOpacity: $dispArou }
+            // ),
+            // vg.ruleX(
+            //     vg.from("resp"),
+            //     { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: $dispResp }
+            // ),
+            // vg.panZoomX({x: $xs}),
+            // vg.nearestX({as: $point})
+        )
+);
 
-function setupEventHandlers() {
-    document.getElementById('displayArousalEvents')
-        .addEventListener('click', () => {
-            displayArousalEvents = toggleEvents(
-                measurements.time.min,
-                measurements.time.max,
-                displayArousalEvents,
-                events.arousal.values,
-                'arousal'
-            );
-        });
+// document.getElementById('saO2').appendChild(vg.slider({ select: "interval", from: "signal", column: "SaO2", as:  $oxygenThreshold}));
 
-    document.getElementById('displayRespEvents')
-        .addEventListener('click', () => {
-            displayRespEvents = toggleEvents(
-                measurements.time.min,
-                measurements.time.max,
-                displayRespEvents,
-                events.resp.values,
-                'resp'
-            );
-        });
-}
+// document.getElementById('container').appendChild(
+//     vg.plot(
+//         vg.line(
+//             vg.from("signal"),
+//             { x: "time", y: "EEG" }
+//         ),
+//         vg.ruleX(
+//             vg.from("arou"),
+//             { x: "Sample#", stroke: "#cba6f7", strokeOpacity: $dispArou }
+//         ),
+//         vg.ruleX(
+//             vg.from("resp"),
+//             { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: $dispResp }
+//         ),
+//         vg.panZoomX({x: $xs})
+//     )
+// )
+
+// document.getElementById('controls').appendChild(
+//     vg.menu({
+//         label: "Arousal Events",
+//         options: [{value: 0, label: "Hide"}, {value: 1, label: "Show"}], as: $dispArou}
+//     )
+// )
+// document.getElementById('controls').appendChild(
+//     vg.menu({
+//         label: "Respiratory Events",
+//         options: [{value: 0, label: "Hide"}, {value: 1, label: "Show"}], as: $dispResp}
+//     )
+// )

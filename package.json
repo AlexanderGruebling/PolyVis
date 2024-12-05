@@ -10,7 +10,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@uwdata/vgplot": "^0.10.0"
+    "@uwdata/vgplot": "^0.10.0",
+    "d3": "^7.9.0"
   },
   "devDependencies": {
     "vite": "^5.4.10"

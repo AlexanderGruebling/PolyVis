@@ -10,22 +10,10 @@
 </nav>
 <main>
     <div class="col-1">
-        <div id="container2">
-            <svg class="hypno" width="640" height="400"></svg>
-        </div>
+        <div id="container2"></div>
         <div id="legend">
             <div id="controls">
                 <strong>Filters:</strong>
-                <div>
-                    <input type="checkbox" id="displayArousalEvents"/>
-                    <label for="displayArousalEvents">Display Arousal Events</label>
-                    <div id="arouEventsLabel"></div>
-                </div>
-                <div>
-                    <input type="checkbox" id="displayRespEvents"/>
-                    <label for="displayRespEvents">Display Respiratory Events</label>
-                    <div id="respEventsLabel"></div>
-                </div>
             </div>
             <hr>
             <strong>Legend:</strong>
@@ -39,7 +27,9 @@
             </ul>
         </div>
     </div>
-    <div id="container"></div>
+    <div id="container">
+        <div id="saO2"></div>
+    </div>
     <div id="container3"></div>
 </main>
 <script type="module" src="app.js"></script>

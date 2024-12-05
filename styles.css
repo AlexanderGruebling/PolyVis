@@ -1,7 +1,16 @@
 #container {
     display: flex;
     flex-direction: column;
-    max-width: 640px;
+    max-width: 800px;
+}
+
+.plot {
+    min-width: 600px;
+}
+
+#saO2 {
+    display: flex;
+    flex-direction: row;
 }
 
 body {
@@ -46,18 +55,13 @@ hr {
     align-items: center;
 }
 
-#arouEventsLabel {
-    width: 15px;
-    height: 15px;
-    margin-left: 0.5rem;
-    background-color: #ff8a65;
-    border: 1px solid black;
+.input {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
-#respEventsLabel {
-    width: 15px;
-    height: 15px;
-    margin-left: 0.5rem;
-    background-color: #4db6ac;
-    border: 1px solid black;
+#container > #saO2 > .input > input[type="range"] {
+    rotate: 270deg;
 }
