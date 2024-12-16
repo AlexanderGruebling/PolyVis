@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@uwdata/mosaic-sql": "^0.12.2",
     "@uwdata/vgplot": "^0.10.0",
     "d3": "^7.9.0"
   },

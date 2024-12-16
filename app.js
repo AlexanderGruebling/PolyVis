@@ -1,5 +1,6 @@
 import * as d3 from "d3";
 import * as vg from "@uwdata/vgplot";
+import { Query, min } from "@uwdata/mosaic-sql";
 import signalsUrl from "/Resources/0000_signals.csv?url";
 import hypnUrl from "/Resources/0000_hypn.csv?url";
 import arouUrl from "/Resources/0000_arou.csv?url";
@@ -7,36 +8,56 @@ import respUrl from "/Resources/0000_resp.csv?url";
 import { drawLineChart, updateLineChart } from './drawingUtils.js';
 import { loadData } from './dataUtils.js';
 
-console.log(signalsUrl)
+// Helper function for URL concatenation
+const getFullUrl = (relativeUrl) => `http://localhost:5173${relativeUrl}`;
+
+// Load CSV data
 vg.coordinator().databaseConnector(vg.wasmConnector());
-vg.coordinator().exec(vg.loadCSV("signal", "http://localhost:5173" + signalsUrl));
-vg.coordinator().exec(vg.loadCSV("hypn", "http://localhost:5173" + hypnUrl));
-vg.coordinator().exec(vg.loadCSV("arou", "http://localhost:5173" + arouUrl));
-vg.coordinator().exec(vg.loadCSV("resp", "http://localhost:5173" + respUrl));
+const datasets = [
+    { name: "signal", url: getFullUrl(signalsUrl) },
+    { name: "hypn", url: getFullUrl(hypnUrl) },
+    { name: "arou", url: getFullUrl(arouUrl) },
+    { name: "resp", url: getFullUrl(respUrl) }
+];
+await datasets.forEach(dataset => vg.coordinator().exec(vg.loadCSV(dataset.name, dataset.url)));
+let minSamples = 0;
+let maxSamples = 32398.0;
 
-const $xs = vg.Selection.intersect();
-const $dispArou = vg.Param.value(0);
-const $dispResp = vg.Param.value(0);
-const $oxygenThreshold = vg.Param.value(0);
-const $point = vg.Param.value(10);
-const $hypnPoint = vg.Param.value(0)
+// console.log(vg.coordinator().exec(vg.from("signal", {y: vg.min("time")})))
+// Parameter initializations
+const params = {
+    xs: vg.Selection.intersect(),
+    dispArou: vg.Param.value(0),
+    dispResp: vg.Param.value(0),
+    oxygenThreshold: vg.Param.value(0),
+    point: vg.Param.value(10),
+    hypnPoint: vg.Param.value(0),
+    sampleDomain: vg.Param.array([minSamples, maxSamples])
+};
 
-document.getElementById('container2').appendChild(
+// Cache DOM elements
+const container2 = document.getElementById('container2');
+const saO2Container = document.getElementById('saO2');
+const mainContainer = document.getElementById('container');
+const controls = document.getElementById('controls');
+
+container2.addEventListener("click", () => {
+    console.log(params.hypnPoint.value)
+    params.sampleDomain.update([params.hypnPoint.value - 100, params.hypnPoint.value + 100])
+})
+
+// Plot for hypnogram
+container2.appendChild(
     vg.plot(
-        vg.line(
-            vg.from("hypn"),
-            {x: "Sample#", y: "Aux"}
-        ),
-        vg.nearestX({as: $hypnPoint}),
-        vg.ruleX({x: $hypnPoint}),
-        // vg.textX({x: $hypnPoint, text: $hypnPoint, frameAnchor: "top", lineAnchor: "bottom"}),
+        vg.line(vg.from("hypn"), { x: "Sample#", y: "Aux" }),
+        vg.nearestX({ as: params.hypnPoint }),
+        vg.ruleX({ x: params.hypnPoint }),
         vg.textX(
             vg.from("hypn"),
             {
-                x: $hypnPoint,
+                x: params.hypnPoint,
                 text: "Aux",
                 frameAnchor: "top",
-                // lineAnchor: "bottom",
                 dy: -8,
                 select: "nearestX"
             }
@@ -45,59 +66,51 @@ document.getElementById('container2').appendChild(
     )
 );
 
-document.getElementById('saO2').appendChild(
+// Plot for SaO2 with additional overlays
+saO2Container.appendChild(
     vg.plot(
-        vg.line(
-            vg.from("signal"),
-            {
-                x: "time",
-                y: "SaO2",
-            }
-        ),
-        vg.nearestX({as: $point}),
-        vg.ruleX({x: $point}),
-        // vg.textX({x: $point, text: $point, frameAnchor: "top", lineAnchor: "bottom", dy: -7}),
-        // vg.ruleX(
-        //     vg.from("arou"),
-        //     { x: "Sample#", stroke: "#cba6f7", strokeOpacity: $dispArou }
-        // ),
-        // vg.ruleX(
-        //     vg.from("resp"),
-        //     { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: $dispResp }
-        // ),
-        vg.panZoomX({x: $xs}),
+        vg.line(vg.from("signal"), { x: "time", y: "SaO2" }),
+        vg.xDomain(params.sampleDomain),
+        vg.nearestX({ as: params.point }),
+        vg.ruleX({ x: params.point }),
+        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
+        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
+        vg.panZoomX({ x: params.xs })
     )
 );
 
-// document.getElementById('saO2').appendChild(vg.slider({ select: "interval", from: "signal", column: "SaO2", as:  $oxygenThreshold}));
+// Slider for oxygen threshold
+saO2Container.appendChild(
+    vg.slider({
+        from: "signal",
+        column: "SaO2",
+        as: params.oxygenThreshold
+    })
+);
 
- document.getElementById('container').appendChild(
-     vg.plot(
-         vg.line(
-             vg.from("signal"),
-             { x: "time", y: "EEG" }
-         ),
-         vg.ruleX(
-             vg.from("arou"),
-             { x: "Sample#", stroke: "#cba6f7", strokeOpacity: $dispArou }
-         ),
-         vg.ruleX(
-             vg.from("resp"),
-             { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: $dispResp }
-         ),
-         vg.panZoomX({x: $xs})
-     )
-)
+// Main signal plot (e.g., EEG)
+mainContainer.appendChild(
+    vg.plot(
+        vg.line(vg.from("signal"), { x: "time", y: "EEG" }),
+        vg.xDomain(params.sampleDomain),
+        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
+        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
+        vg.panZoomX({ x: params.xs })
+    )
+);
 
-document.getElementById('controls').appendChild(
-     vg.menu({
-         label: "Arousal Events",
-         options: [{value: 0, label: "Hide"}, {value: 1, label: "Show"}], as: $dispArou}
-     )
-)
-document.getElementById('controls').appendChild(
-     vg.menu({
-         label: "Respiratory Events",
-         options: [{value: 0, label: "Hide"}, {value: 1, label: "Show"}], as: $dispResp}
-     )
-)
+// Control menus
+controls.appendChild(
+    vg.menu({
+        label: "Arousal Events",
+        options: [{ value: 0, label: "Hide" }, { value: 1, label: "Show" }],
+        as: params.dispArou
+    })
+);
+controls.appendChild(
+    vg.menu({
+        label: "Respiratory Events",
+        options: [{ value: 0, label: "Hide" }, { value: 1, label: "Show" }],
+        as: params.dispResp
+    })
+);
