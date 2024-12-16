@@ -1,12 +1,9 @@
-import * as d3 from "d3";
 import * as vg from "@uwdata/vgplot";
 import { Query, min } from "@uwdata/mosaic-sql";
 import signalsUrl from "/Resources/0000_signals.csv?url";
 import hypnUrl from "/Resources/0000_hypn.csv?url";
 import arouUrl from "/Resources/0000_arou.csv?url";
 import respUrl from "/Resources/0000_resp.csv?url";
-import { drawLineChart, updateLineChart } from './drawingUtils.js';
-import { loadData } from './dataUtils.js';
 
 // Helper function for URL concatenation
 const getFullUrl = (relativeUrl) => `http://localhost:5173${relativeUrl}`;
@@ -23,6 +20,14 @@ await datasets.forEach(dataset => vg.coordinator().exec(vg.loadCSV(dataset.name,
 let minSamples = 0;
 let maxSamples = 32398.0;
 
+const keys = [
+    { name: "EEG", key: "EEG", display: false, plot: null },
+    { name: "SaO2", key: "SaO2", display: false, plot: null },
+    { name: "ECG", key: "ECG", display: false, plot: null },
+    { name: "THOR RES", key: "THOR RES", display: false, plot: null },
+    { name: "ABDO RES", key: "ABDO RES", display: false, plot: null }
+];
+
 // console.log(vg.coordinator().exec(vg.from("signal", {y: vg.min("time")})))
 // Parameter initializations
 const params = {
@@ -37,14 +42,42 @@ const params = {
 
 // Cache DOM elements
 const container2 = document.getElementById('container2');
-const saO2Container = document.getElementById('saO2');
 const mainContainer = document.getElementById('container');
 const controls = document.getElementById('controls');
+const resetButton = document.getElementById('resetButton');
+
+keys.forEach(key => {
+    controls.appendChild(Object.assign(document.createElement("label"), {
+        htmlFor: key.key,
+        textContent: key.name
+    }));
+    const checkbox  = Object.assign(document.createElement("input"), {
+        type: "checkbox",
+        id: key.key
+    });
+    checkbox.addEventListener("click", (event) => {
+        if (event.target.checked) {
+            mainContainer.appendChild(key.plot);
+        } else {
+            document.getElementById(key.plot.getAttribute("id")).remove();
+        }
+    });
+    controls.appendChild(checkbox);
+
+    key.plot = vg.plot(
+        vg.line(vg.from("signal"), { x: "time", y: key.key }),
+        vg.xDomain(params.sampleDomain),
+        vg.height(300),
+        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
+        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
+        vg.panZoomX({ x: params.xs }),
+    );
+    key.plot.setAttribute("id", `${key.key}_plot`);
+})
 
 container2.addEventListener("click", () => {
-    console.log(params.hypnPoint.value)
     params.sampleDomain.update([params.hypnPoint.value - 100, params.hypnPoint.value + 100])
-})
+});
 
 // Plot for hypnogram
 container2.appendChild(
@@ -66,38 +99,14 @@ container2.appendChild(
     )
 );
 
-// Plot for SaO2 with additional overlays
-saO2Container.appendChild(
-    vg.plot(
-        vg.line(vg.from("signal"), { x: "time", y: "SaO2" }),
-        vg.xDomain(params.sampleDomain),
-        vg.nearestX({ as: params.point }),
-        vg.ruleX({ x: params.point }),
-        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
-        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
-        vg.panZoomX({ x: params.xs })
-    )
-);
-
 // Slider for oxygen threshold
-saO2Container.appendChild(
-    vg.slider({
-        from: "signal",
-        column: "SaO2",
-        as: params.oxygenThreshold
-    })
-);
-
-// Main signal plot (e.g., EEG)
-mainContainer.appendChild(
-    vg.plot(
-        vg.line(vg.from("signal"), { x: "time", y: "EEG" }),
-        vg.xDomain(params.sampleDomain),
-        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
-        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
-        vg.panZoomX({ x: params.xs })
-    )
-);
+// saO2Container.appendChild(
+//     vg.slider({
+//         from: "signal",
+//         column: "SaO2",
+//         as: params.oxygenThreshold
+//     })
+// );
 
 // Control menus
 controls.appendChild(
@@ -114,3 +123,6 @@ controls.appendChild(
         as: params.dispResp
     })
 );
+resetButton.addEventListener("click", () => {
+    params.sampleDomain.update([minSamples, maxSamples]);
+})
