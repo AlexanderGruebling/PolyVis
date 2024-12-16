@@ -45,9 +45,12 @@ const container2 = document.getElementById('container2');
 const mainContainer = document.getElementById('container');
 const controls = document.getElementById('controls');
 const resetButton = document.getElementById('resetButton');
+const eventsContainer = document.getElementById('eventsContainer');
 
 keys.forEach(key => {
-    controls.appendChild(Object.assign(document.createElement("label"), {
+    const plotToggles = document.createElement("div");
+    plotToggles.className = "row";
+    plotToggles.appendChild(Object.assign(document.createElement("label"), {
         htmlFor: key.key,
         textContent: key.name
     }));
@@ -62,7 +65,8 @@ keys.forEach(key => {
             document.getElementById(key.plot.getAttribute("id")).remove();
         }
     });
-    controls.appendChild(checkbox);
+    plotToggles.appendChild(checkbox);
+    controls.appendChild(plotToggles);
 
     key.plot = vg.plot(
         vg.line(vg.from("signal"), { x: "time", y: key.key }),
@@ -109,20 +113,24 @@ container2.appendChild(
 // );
 
 // Control menus
-controls.appendChild(
+const eventControlsWrapper = document.createElement("div");
+eventControlsWrapper.className = "row";
+eventControlsWrapper.appendChild(
     vg.menu({
         label: "Arousal Events",
         options: [{ value: 0, label: "Hide" }, { value: 1, label: "Show" }],
         as: params.dispArou
     })
 );
-controls.appendChild(
+eventControlsWrapper.appendChild(
     vg.menu({
         label: "Respiratory Events",
         options: [{ value: 0, label: "Hide" }, { value: 1, label: "Show" }],
         as: params.dispResp
     })
 );
+eventsContainer.appendChild(eventControlsWrapper);
+
 resetButton.addEventListener("click", () => {
     params.sampleDomain.update([minSamples, maxSamples]);
 })

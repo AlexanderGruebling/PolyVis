@@ -65,3 +65,14 @@ hr {
 #container > #saO2 > .input > input[type="range"] {
     rotate: 270deg;
 }
+
+.row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+}
