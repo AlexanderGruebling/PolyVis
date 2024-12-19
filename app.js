@@ -37,7 +37,9 @@ const params = {
     oxygenThreshold: vg.Param.value(0),
     point: vg.Param.value(10),
     hypnPoint: vg.Param.value(0),
-    sampleDomain: vg.Param.array([minSamples, maxSamples])
+    sampleDomain: vg.Param.array([minSamples, maxSamples]),
+    selectedTimeframe: vg.Param.value(0),
+    selectedTimeframeOpacity: vg.Param.value(0),
 };
 
 // Cache DOM elements
@@ -80,6 +82,7 @@ keys.forEach(key => {
 })
 
 container2.addEventListener("click", () => {
+    params.selectedTimeframe.update(params.hypnPoint.value);
     params.sampleDomain.update([params.hypnPoint.value - 100, params.hypnPoint.value + 100])
 });
 
@@ -97,6 +100,17 @@ container2.appendChild(
                 frameAnchor: "top",
                 dy: -8,
                 select: "nearestX"
+            }
+        ),
+        vg.ruleX({ x: params.selectedTimeframe }),
+        vg.textX(
+            [{label: "Last Selection"}],
+            {
+                x: params.selectedTimeframe,
+                text: "label",
+                frameAnchor: top,
+                y: 0,
+                strokeOpacity: params.selectedTimeframe.value !== 0 ? 1 : 0
             }
         ),
         vg.height(400)
@@ -125,7 +139,13 @@ eventControlsWrapper.appendChild(
 eventControlsWrapper.appendChild(
     vg.menu({
         label: "Respiratory Events",
-        options: [{ value: 0, label: "Hide" }, { value: 1, label: "Show" }],
+        options: [
+            { value: 0, label: "Hide" },
+            { value: 1, label: "Hypopnea" },
+            { value: 2, label: "Ob.A." },
+            { value: 3, label: "Cn.A." },
+            { value: 4, label: "All" }
+        ],
         as: params.dispResp
     })
 );
