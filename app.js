@@ -6,7 +6,7 @@ import arouUrl from "/Resources/0000_arou.csv?url";
 import respUrl from "/Resources/0000_resp.csv?url";
 
 // Helper function for URL concatenation
-const getFullUrl = (relativeUrl) => `http://localhost:5173${relativeUrl}`;
+const getFullUrl = (relativeUrl) => `${window.location.origin}${relativeUrl}`;
 
 // Load CSV data
 vg.coordinator().databaseConnector(vg.wasmConnector());
