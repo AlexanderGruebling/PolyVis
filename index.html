@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>PolyVis</title>
-    <link href="styles.css" rel="stylesheet"/>
+    <link href="src/styles.css" rel="stylesheet"/>
 </head>
 <body>
 <nav>
@@ -23,6 +23,10 @@
                 </div>
             </div>
         </div>
+        <div class="sidebar-section" id="metrics-section">
+            <h3>Clinical Metrics</h3>
+            <div id="metrics-content"></div>
+        </div>
         <div class="sidebar-section">
             <h3>Events</h3>
             <div id="eventsContainer"></div>
@@ -41,6 +45,6 @@
     </div>
     <div class="plot-area" id="container"></div>
 </main>
-<script type="module" src="app.js"></script>
+<script type="module" src="/src/main.js"></script>
 </body>
 </html>

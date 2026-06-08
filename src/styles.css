@@ -152,6 +152,31 @@ main {
     border-color: var(--accent);
 }
 
+#metrics-content {
+    font-size: 13px;
+}
+
+#metrics-content hr {
+    margin: 8px 0;
+}
+
+.metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+}
+
+.metric-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
 #hypnogram-section {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
