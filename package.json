@@ -1,7 +1,7 @@
 {
   "name": "polyvis",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -16,7 +16,9 @@ const datasets = [
     { name: "arou", url: getFullUrl(arouUrl) },
     { name: "resp", url: getFullUrl(respUrl) }
 ];
-await datasets.forEach(dataset => vg.coordinator().exec(vg.loadCSV(dataset.name, dataset.url)));
+for (const dataset of datasets) {
+    await vg.coordinator().exec(vg.loadCSV(dataset.name, dataset.url));
+}
 let minSamples = 0;
 let maxSamples = 32398.0;
 
@@ -56,15 +58,26 @@ keys.forEach(key => {
         htmlFor: key.key,
         textContent: key.name
     }));
-    const checkbox  = Object.assign(document.createElement("input"), {
+    const checkbox = Object.assign(document.createElement("input"), {
         type: "checkbox",
         id: key.key
     });
+
+    const card = document.createElement("div");
+    card.className = "plot-card";
+    const cardHeader = document.createElement("div");
+    cardHeader.className = "plot-card-header";
+    cardHeader.textContent = key.name;
+    card.appendChild(cardHeader);
+    const cardBody = document.createElement("div");
+    cardBody.className = "plot-card-body";
+    card.appendChild(cardBody);
+
     checkbox.addEventListener("click", (event) => {
         if (event.target.checked) {
-            mainContainer.appendChild(key.plot);
+            mainContainer.appendChild(card);
         } else {
-            document.getElementById(key.plot.getAttribute("id")).remove();
+            card.remove();
         }
     });
     plotToggles.appendChild(checkbox);
@@ -74,12 +87,54 @@ keys.forEach(key => {
         vg.line(vg.from("signal"), { x: "time", y: key.key }),
         vg.xDomain(params.sampleDomain),
         vg.height(300),
-        vg.ruleX(vg.from("arou"), { x: "Sample#", stroke: "#cba6f7", strokeOpacity: params.dispArou }),
-        vg.ruleX(vg.from("resp"), { x: "Sample#", stroke: "#a6e3a1", strokeOpacity: params.dispResp }),
         vg.panZoomX({ x: params.xs }),
     );
     key.plot.setAttribute("id", `${key.key}_plot`);
+    cardBody.appendChild(key.plot);
 })
+
+const arouTrack = vg.plot(
+    vg.ruleX(vg.from("arou"), {
+        x: "Sample#",
+        stroke: "#cba6f7",
+        strokeWidth: 4,
+        strokeOpacity: params.dispArou
+    }),
+    vg.xDomain(params.sampleDomain),
+    vg.yDomain([0, 1]),
+    vg.height(24),
+    vg.panZoomX({ x: params.xs }),
+);
+
+const respTrack = vg.plot(
+    vg.ruleX(vg.from("resp"), {
+        x: "Sample#",
+        stroke: "#a6e3a1",
+        strokeWidth: 4,
+        strokeOpacity: params.dispResp
+    }),
+    vg.xDomain(params.sampleDomain),
+    vg.yDomain([0, 1]),
+    vg.height(24),
+    vg.panZoomX({ x: params.xs }),
+);
+
+function createTrackCard(title, track) {
+    const card = document.createElement("div");
+    card.className = "plot-card";
+    const header = document.createElement("div");
+    header.className = "plot-card-header";
+    header.textContent = title;
+    card.appendChild(header);
+    const body = document.createElement("div");
+    body.className = "plot-card-body";
+    body.appendChild(track);
+    card.appendChild(body);
+    return card;
+}
+
+mainContainer.appendChild(createTrackCard("Arousal Events", arouTrack));
+mainContainer.appendChild(createTrackCard("Respiratory Events", respTrack));
 
 container2.addEventListener("click", () => {
     params.selectedTimeframe.update(params.hypnPoint.value);
@@ -108,7 +163,7 @@ container2.appendChild(
             {
                 x: params.selectedTimeframe,
                 text: "label",
-                frameAnchor: top,
+                frameAnchor: "top",
                 y: 0,
                 strokeOpacity: params.selectedTimeframe.value !== 0 ? 1 : 0
             }

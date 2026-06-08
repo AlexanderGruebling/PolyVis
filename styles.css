@@ -1,78 +1,207 @@
-#container {
-    display: flex;
-    flex-direction: column;
-    max-width: 800px;
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --bg-card: #1c2333;
+    --border-color: #30363d;
+    --accent: #58a6ff;
+    --accent-muted: #1f6feb;
+    --text-primary: #e6edf3;
+    --text-secondary: #8b949e;
+    --text-muted: #6e7681;
 }
 
-.plot {
-    min-width: 600px;
-}
-
-#saO2 {
-    display: flex;
-    flex-direction: row;
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: Arial, serif;
-}
-
-main {
-    padding: 1vw;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    line-height: 1.5;
 }
 
 nav {
-    background-color: #209CEE;
-    height: 3rem;
-    padding: 0.5rem;
-}
-
-hr {
-    color: #209CEE;
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    height: 48px;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .logoImg {
-    max-height: 3rem;
+    max-height: 32px;
 }
 
-#legend {
-    border: 5px solid #209CEE;
-    border-radius: 15px;
-    background-color: #ededed;
-    padding: 1vw;
+main {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 20px;
+    padding: 20px;
+    max-width: 1600px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.sidebar {
+    position: sticky;
+    top: 68px;
+    contain: paint;
+}
+
+.sidebar-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.sidebar-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+}
+
+.sidebar-section hr {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 12px 0;
+}
+
+.sidebar-section ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-section ul li {
+    padding: 3px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
 }
 
 #controls {
     display: flex;
     flex-direction: column;
+    gap: 2px;
 }
 
-#controls > div {
+#controls .row {
     display: flex;
     align-items: center;
+    gap: 8px;
+    padding: 3px 0;
 }
 
-.input {
+#controls .row label {
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+}
+
+#controls .row input[type="checkbox"] {
+    accent-color: var(--accent);
+    cursor: pointer;
+}
+
+#resetButton {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    margin-top: 4px;
+}
+
+#resetButton:hover {
+    background: var(--accent-muted);
+    color: var(--text-primary);
+}
+
+#eventsContainer .row {
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
+    gap: 8px;
 }
 
-#container > #saO2 > .input > input[type="range"] {
-    rotate: 270deg;
+#eventsContainer select {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 13px;
+    cursor: pointer;
 }
 
-.row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+#eventsContainer select:focus {
+    outline: none;
+    border-color: var(--accent);
 }
 
-.col {
-    display: flex;
-    flex-direction: column;
+#hypnogram-section {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+#hypnogram-section h3 {
+    margin: 0 0 12px 0;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+}
+
+#hypnogram-section > div {
+    width: 100% !important;
+    overflow: hidden;
+}
+
+.plot-area {
+    min-width: 0;
+}
+
+.plot-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 16px;
+    contain: layout style paint;
+}
+
+.plot-card-header {
+    padding: 8px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
+}
+
+.plot-card-body {
+    padding: 4px;
+}
+
+.plot-card-body svg {
+    display: block;
+    width: 100%;
+    height: auto;
 }

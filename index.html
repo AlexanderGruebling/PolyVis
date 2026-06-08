@@ -3,42 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <title>PolyVis</title>
+    <link href="styles.css" rel="stylesheet"/>
 </head>
 <body>
 <nav>
     <img src="PolyVisLogo.png" alt="PolyVis Logo" class="logoImg">
 </nav>
 <main>
-    <div class="col-1">
-        <div id="container2"></div>
-        <div id="legend">
+    <div class="sidebar">
+        <div id="hypnogram-section">
+            <h3>Hypnogram</h3>
+            <div id="container2"></div>
+        </div>
+        <div class="sidebar-section">
+            <h3>Controls</h3>
             <div id="controls">
                 <div class="row">
-                    <strong>Controls:</strong>
                     <input type="button" id="resetButton" value="Reset Zoom">
                 </div>
             </div>
-            <hr>
-            <div id="eventsContainer">
-                <strong>Events:</strong>
-            </div>
-            <hr>
-            <strong>Legend:</strong>
+        </div>
+        <div class="sidebar-section">
+            <h3>Events</h3>
+            <div id="eventsContainer"></div>
+        </div>
+        <div class="sidebar-section">
+            <h3>Sleep Stages</h3>
             <ul>
-                <li>W: Wake</li>
-                <li>R: REM (Rapid Eye Movement)</li>
-                <li>1: First stage of deep sleep</li>
-                <li>2: Second stage of deep sleep</li>
-                <li>3: Third stage of deep sleep</li>
-                <li>4: Fourth stage of deep sleep</li>
+                <li>W — Wake</li>
+                <li>R — REM (Rapid Eye Movement)</li>
+                <li>1 — N1 (Light sleep)</li>
+                <li>2 — N2 (Deep sleep)</li>
+                <li>3 — N3 (Slow-wave sleep)</li>
+                <li>4 — N4 (Very deep sleep)</li>
             </ul>
         </div>
     </div>
-    <div id="container">
-    </div>
-    <div id="container3"></div>
+    <div class="plot-area" id="container"></div>
 </main>
 <script type="module" src="app.js"></script>
-<link href="styles.css" rel="stylesheet"/>
 </body>
 </html>
