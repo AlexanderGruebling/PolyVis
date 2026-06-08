@@ -9,6 +9,11 @@ export default defineConfig({
         main: resolve(__dirname, 'index.html'),
         analysis: resolve(__dirname, 'analysis.html'),
         about: resolve(__dirname, 'about.html'),
+      },
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules/@uwdata')) return 'vendor';
+        }
       }
     }
   },

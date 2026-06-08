@@ -36,6 +36,7 @@ export function createHypnogram({ containerId = "container2", height = 400, clic
                 }
             ),
             vg.xTickFormat(timeFormat),
+            vg.xLabel("HH:MM"),
             vg.height(height)
         )
     );

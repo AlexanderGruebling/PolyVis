@@ -72,6 +72,7 @@ export async function createSignalPlots() {
             vg.height(300),
             vg.panZoomX({ x: params.xs }),
             vg.xTickFormat(timeFormat),
+            vg.xLabel("HH:MM"),
         );
         plot.setAttribute("id", `${key.key}_plot`);
         cardBody.appendChild(plot);
