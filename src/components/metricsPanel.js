@@ -1,6 +1,6 @@
 export async function getMetrics(q) {
     const epochSeconds = 30;
-    const sleepRows = await q("SELECT COUNT(*) AS cnt FROM hypn WHERE Aux IN ('1','2','3','4')");
+    const sleepRows = await q("SELECT COUNT(*) AS cnt FROM hypn WHERE Aux IN ('1','2','3','4','R')");
     const sleepHours = Number(sleepRows[0].cnt) * epochSeconds / 3600;
 
     const respRows = await q("SELECT COUNT(*) AS cnt FROM resp");

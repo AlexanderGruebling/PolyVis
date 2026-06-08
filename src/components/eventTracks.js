@@ -31,6 +31,7 @@ export function createEventTracks() {
         vg.height(24),
         vg.panZoomX({ x: params.xs }),
         vg.xTickFormat(timeFormat),
+        vg.xLabel("HH:MM"),
     );
 
     const respTrack = vg.plot(
@@ -45,6 +46,7 @@ export function createEventTracks() {
         vg.height(24),
         vg.panZoomX({ x: params.xs }),
         vg.xTickFormat(timeFormat),
+        vg.xLabel("HH:MM"),
     );
 
     mainContainer.appendChild(createTrackCard("Arousal Events", arouTrack));
