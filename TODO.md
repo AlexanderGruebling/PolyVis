@@ -22,4 +22,4 @@
 
 ## Polish
 
-- [ ] **Tooltip on desaturation bands** — hovering a pink band shows "Desaturation ≥3%" with exact drop value
+- [ ] **Tooltip on desaturation bands** — hovering a pink band shows the max drop depth (e.g. "↓4.2%")

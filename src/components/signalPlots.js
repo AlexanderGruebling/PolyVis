@@ -18,10 +18,10 @@ export async function createSignalPlots() {
 
     const desatIntervals = await getDesaturationIntervals(q);
     if (desatIntervals.length > 0) {
-        const rows = desatIntervals.map(r => `(${r.start}, ${r.end})`).join(',');
-        await q(`CREATE OR REPLACE TABLE desats AS SELECT * FROM (VALUES ${rows}) AS t(x1, x2)`);
+        const rows = desatIntervals.map(r => `(${r.start}, ${r.end}, ${r.depth}, '↓${r.depth}%')`).join(',');
+        await q(`CREATE OR REPLACE TABLE desats AS SELECT * FROM (VALUES ${rows}) AS t(x1, x2, depth, label)`);
     } else {
-        await q(`CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2 WHERE FALSE`);
+        await q(`CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth, '' AS label WHERE FALSE`);
     }
 
     keys.forEach(key => {
