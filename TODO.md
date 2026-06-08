@@ -12,7 +12,7 @@
 ## Interaction
 
 - [ ] **Range-selection brush on hypnogram** — drag to select a window that zooms the signal plots (was implemented then reverted; needs to work without also brushing the hypnogram itself)
-- [ ] **Keyboard shortcuts** — `R` reset zoom, `←`/`→` pan view, `Esc` clear selection
+- [x] **Keyboard shortcuts** — `R`/`Esc` resets zoom, `←`/`→` pans by 25% of current window ✓
 
 ## Code Quality
 

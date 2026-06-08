@@ -7,7 +7,6 @@ export function createHypnogram({ containerId = "container2", height = 400, clic
 
     if (clickToZoom) {
         container.addEventListener("click", () => {
-            params.selectedTimeframe.update(params.hypnPoint.value);
             params.sampleDomain.update([params.hypnPoint.value - 100, params.hypnPoint.value + 100]);
         });
     }
@@ -24,17 +23,6 @@ export function createHypnogram({ containerId = "container2", height = 400, clic
                 dy: -8,
                 select: "nearestX"
             }),
-            vg.ruleX({ x: params.selectedTimeframe }),
-            vg.textX(
-                [{ label: "Last Selection" }],
-                {
-                    x: params.selectedTimeframe,
-                    text: "label",
-                    frameAnchor: "top",
-                    y: 0,
-                    strokeOpacity: params.selectedTimeframe.value !== 0 ? 1 : 0
-                }
-            ),
             vg.xTickFormat(timeFormat),
             vg.xLabel("HH:MM"),
             vg.height(height)

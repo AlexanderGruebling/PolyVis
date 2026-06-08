@@ -1,6 +1,12 @@
 import * as vg from "@uwdata/vgplot";
 import { params, minSamples, maxSamples } from "../state/params.js";
 
+function resetZoom() {
+    params.sampleDomain.update([minSamples, maxSamples], { force: true });
+    params.xs._resolved = [];
+    params.xs.update([minSamples, maxSamples], { force: true });
+}
+
 export function createControls() {
     const eventsContainer = document.getElementById('eventsContainer');
     const resetButton = document.getElementById('resetButton');
@@ -30,9 +36,33 @@ export function createControls() {
     );
     eventsContainer.appendChild(wrapper);
 
-    resetButton.addEventListener("click", () => {
-        params.sampleDomain.update([minSamples, maxSamples], { force: true });
-        params.xs._resolved = [];
-        params.xs.update([minSamples, maxSamples], { force: true });
+    resetButton.addEventListener("click", resetZoom);
+
+    document.addEventListener("keydown", (e) => {
+        const tag = document.activeElement?.tagName;
+        if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
+
+        if (e.key === "r" || e.key === "R" || e.key === "Escape") {
+            resetZoom();
+            return;
+        }
+
+        if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+            const [curMin, curMax] = params.sampleDomain.value;
+            const shift = (curMax - curMin) * 0.25;
+            if (e.key === "ArrowLeft") {
+                const newMin = Math.max(minSamples, curMin - shift);
+                const newMax = Math.max(minSamples, curMax - shift);
+                params.sampleDomain.update([newMin, newMax], { force: true });
+                params.xs._resolved = [];
+                params.xs.update([newMin, newMax], { force: true });
+            } else {
+                const newMin = Math.min(maxSamples, curMin + shift);
+                const newMax = Math.min(maxSamples, curMax + shift);
+                params.sampleDomain.update([newMin, newMax], { force: true });
+                params.xs._resolved = [];
+                params.xs.update([newMin, newMax], { force: true });
+            }
+        }
     });
 }

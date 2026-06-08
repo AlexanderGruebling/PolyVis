@@ -11,6 +11,4 @@ export const params = {
     point: vg.Param.value(10),
     hypnPoint: vg.Param.value(0),
     sampleDomain: vg.Param.array([minSamples, maxSamples]),
-    selectedTimeframe: vg.Param.value(0),
-    selectedTimeframeOpacity: vg.Param.value(0),
 };
