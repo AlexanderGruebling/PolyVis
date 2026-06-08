@@ -9,7 +9,9 @@ await initLoader();
 
 createControls();
 createSignalPlots();
-createHypnogram();
+createHypnogram({});
 createEventTracks();
+
+document.getElementById('loading-overlay').classList.add('hidden');
 
 computeMetrics(q);

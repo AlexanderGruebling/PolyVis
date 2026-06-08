@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About — PolyVis</title>
+    <link href="src/styles.css" rel="stylesheet"/>
+    <style>
+        .about-content {
+            max-width: 720px;
+            margin: 40px auto;
+            padding: 0 20px;
+            display: block;
+        }
+
+        .about-content h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 8px 0;
+        }
+
+        .about-content .subtitle {
+            color: var(--text-secondary);
+            margin: 0 0 32px 0;
+            font-size: 15px;
+        }
+
+        .about-content section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .about-content h2 {
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: var(--text-muted);
+            margin: 0 0 12px 0;
+        }
+
+        .about-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin: 0 0 12px 0;
+        }
+
+        .about-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .about-content ul {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            padding-left: 20px;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+<nav>
+    <img src="PolyVisLogo.png" alt="PolyVis Logo" class="logoImg">
+    <a href="/" class="nav-link">Overview</a>
+    <a href="/analysis" class="nav-link">Analysis</a>
+    <a href="/about" class="nav-link active">About</a>
+</nav>
+<main class="about-content">
+    <h1>About PolyVis</h1>
+    <p class="subtitle">Polysomnography visualization tool for sleep apnea diagnosis</p>
+
+    <section>
+        <h2>Purpose</h2>
+        <p>
+            PolyVis is a clinical visualization tool designed to help sleep physicians and
+            researchers explore polysomnography (PSG) study data for the diagnosis of
+            sleep apnea. It provides an interactive, browser-based interface for reviewing
+            overnight sleep recordings without requiring proprietary software.
+        </p>
+        <p>
+            The tool displays key physiological signals collected during a sleep study —
+            including electroencephalography (EEG), oxygen saturation (SaO₂),
+            electrocardiography (ECG), and respiratory effort (thoracic and abdominal
+            belts) — alongside hypnogram, annotated arousal and respiratory events,
+            and computed clinical metrics.
+        </p>
+    </section>
+
+    <section>
+        <h2>Clinical Metrics</h2>
+        <p>
+            PolyVis computes standard sleep apnea indices directly in the browser using
+            DuckDB WASM:
+        </p>
+        <ul>
+            <li><strong>AHI</strong> (Apnea-Hypopnea Index) — average events per hour of sleep</li>
+            <li><strong>ODI</strong> (Oxygen Desaturation Index) — desaturation events per hour</li>
+            <li><strong>SaO₂ statistics</strong> — minimum, mean, and time spent below 88% and 90%</li>
+            <li><strong>Total sleep time</strong> and event counts</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Technical Stack</h2>
+        <p>
+            Built with <strong>vgplot / mosaic</strong> for declarative, interactive
+            visualization grammar, <strong>DuckDB WASM</strong> for in-browser analytical
+            queries, and vanilla JavaScript with a dark-themed card-based layout.
+        </p>
+    </section>
+
+    <section>
+        <h2>Data Source</h2>
+        <p>
+            The data comes from the <strong>Sleep Heart Health Study (SHHS)</strong>,
+            a multi-center cohort study conducted by the National Heart, Lung, and
+            Blood Institute (NHLBI) in collaboration with the University of California.
+            The study collected overnight polysomnography recordings from thousands of
+            participants to investigate the cardiovascular consequences of sleep-disordered
+            breathing.
+        </p>
+        <p>Each recording in PolyVis comprises:</p>
+        <ul>
+            <li>Signals (EEG, SaO₂, ECG, THOR RES, ABDO RES)</li>
+            <li>Hypnogram (sleep stage annotations every 30 seconds)</li>
+            <li>Arousal events</li>
+            <li>Respiratory events</li>
+        </ul>
+    </section>
+</main>
+</body>
+</html>

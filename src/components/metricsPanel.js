@@ -1,5 +1,5 @@
-export async function computeMetrics(q) {
-    const metricsContent = document.getElementById("metrics-content");
+export async function computeMetrics(q, containerId = "metrics-content") {
+    const metricsContent = document.getElementById(containerId);
 
     const epochSeconds = 30;
     const sleepRows = await q("SELECT COUNT(*) AS cnt FROM hypn WHERE Aux IN ('1','2','3','4')");

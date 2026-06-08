@@ -1,7 +1,29 @@
 import { defineConfig } from 'vite'
+import { resolve } from 'path'
 
 export default defineConfig({
   build: {
-    target: 'esnext'
-  }
+    target: 'esnext',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        analysis: resolve(__dirname, 'analysis.html'),
+        about: resolve(__dirname, 'about.html'),
+      }
+    }
+  },
+  plugins: [
+    {
+      name: 'clean-urls',
+      configureServer(server) {
+        server.middlewares.use((req, _, next) => {
+          const m = req.url.match(/^\/(analysis|about)(\?.*)?$/);
+          if (m) {
+            req.url = '/' + m[1] + '.html' + (m[2] || '');
+          }
+          next();
+        });
+      }
+    }
+  ]
 })
