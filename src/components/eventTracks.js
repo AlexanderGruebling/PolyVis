@@ -1,5 +1,6 @@
 import * as vg from "@uwdata/vgplot";
 import { params } from "../state/params.js";
+import { timeFormat } from "../utils/timeFormat.js";
 
 function createTrackCard(title, track) {
     const card = document.createElement("div");
@@ -29,6 +30,7 @@ export function createEventTracks() {
         vg.yDomain([0, 1]),
         vg.height(24),
         vg.panZoomX({ x: params.xs }),
+        vg.xTickFormat(timeFormat),
     );
 
     const respTrack = vg.plot(
@@ -42,6 +44,7 @@ export function createEventTracks() {
         vg.yDomain([0, 1]),
         vg.height(24),
         vg.panZoomX({ x: params.xs }),
+        vg.xTickFormat(timeFormat),
     );
 
     mainContainer.appendChild(createTrackCard("Arousal Events", arouTrack));

@@ -1,5 +1,6 @@
 import * as vg from "@uwdata/vgplot";
 import { params } from "../state/params.js";
+import { timeFormat } from "../utils/timeFormat.js";
 
 export function createHypnogram({ containerId = "container2", height = 400, clickToZoom = true } = {}) {
     const container = document.getElementById(containerId);
@@ -34,6 +35,7 @@ export function createHypnogram({ containerId = "container2", height = 400, clic
                     strokeOpacity: params.selectedTimeframe.value !== 0 ? 1 : 0
                 }
             ),
+            vg.xTickFormat(timeFormat),
             vg.height(height)
         )
     );

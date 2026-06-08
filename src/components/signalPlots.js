@@ -1,5 +1,6 @@
 import * as vg from "@uwdata/vgplot";
 import { params } from "../state/params.js";
+import { timeFormat } from "../utils/timeFormat.js";
 
 const keys = [
     { name: "EEG", key: "EEG" },
@@ -50,6 +51,7 @@ export function createSignalPlots() {
             vg.xDomain(params.sampleDomain),
             vg.height(300),
             vg.panZoomX({ x: params.xs }),
+            vg.xTickFormat(timeFormat),
         );
         plot.setAttribute("id", `${key.key}_plot`);
         cardBody.appendChild(plot);
