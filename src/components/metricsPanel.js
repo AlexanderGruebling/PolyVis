@@ -42,6 +42,28 @@ export async function getMetrics(q) {
     return { ahi, odi, sleepHours, minSaO2, avgSaO2, pctBelow88, pctBelow90, respCnt, o2Desats };
 }
 
+export async function getDesaturationIntervals(q) {
+    const allSaO2 = await q(`SELECT time, "SaO2" FROM signal WHERE "SaO2" > 0 ORDER BY time`);
+    const vals = allSaO2.map(r => ({ time: Number(r.time), value: Number(r.SaO2) }));
+    const intervals = [];
+    let start = null;
+    let sum = 0;
+    for (let i = 0; i < vals.length; i++) {
+        if (i >= 10) sum -= vals[i - 10].value;
+        sum += vals[i].value;
+        if (i >= 9) {
+            const baseline = sum / 10;
+            if (baseline - vals[i].value >= 3) {
+                if (start === null) start = vals[Math.max(0, i - 10)].time;
+            } else {
+                if (start !== null) { intervals.push({ start, end: vals[i].time }); start = null; }
+            }
+        }
+    }
+    if (start !== null) intervals.push({ start, end: vals[vals.length - 1].time });
+    return intervals;
+}
+
 export function severityLabel(v) {
     if (v < 5) return "(normal)";
     if (v < 15) return "(mild)";

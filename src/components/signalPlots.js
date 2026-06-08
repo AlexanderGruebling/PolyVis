@@ -1,6 +1,8 @@
 import * as vg from "@uwdata/vgplot";
 import { params } from "../state/params.js";
 import { timeFormat } from "../utils/timeFormat.js";
+import { q } from "../data/loader.js";
+import { getDesaturationIntervals } from "./metricsPanel.js";
 
 const keys = [
     { name: "EEG", key: "EEG" },
@@ -10,9 +12,17 @@ const keys = [
     { name: "ABDO RES", key: "ABDO RES" }
 ];
 
-export function createSignalPlots() {
+export async function createSignalPlots() {
     const mainContainer = document.getElementById('container');
     const controls = document.getElementById('controls');
+
+    const desatIntervals = await getDesaturationIntervals(q);
+    if (desatIntervals.length > 0) {
+        const rows = desatIntervals.map(r => `(${r.start}, ${r.end})`).join(',');
+        await q(`CREATE OR REPLACE TABLE desats AS SELECT * FROM (VALUES ${rows}) AS t(x1, x2)`);
+    } else {
+        await q(`CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2 WHERE FALSE`);
+    }
 
     keys.forEach(key => {
         const row = document.createElement("div");
@@ -46,8 +56,18 @@ export function createSignalPlots() {
         row.appendChild(checkbox);
         controls.appendChild(row);
 
-        const plot = vg.plot(
+        const marks = [
             vg.line(vg.from("signal"), { x: "time", y: key.key }),
+        ];
+
+        if (key.key === "SaO2") {
+            marks.unshift(
+                vg.rectX(vg.from("desats"), { x1: "x1", x2: "x2", fill: "#ff4060", fillOpacity: 0.8 })
+            );
+        }
+
+        const plot = vg.plot(
+            ...marks,
             vg.xDomain(params.sampleDomain),
             vg.height(300),
             vg.panZoomX({ x: params.xs }),

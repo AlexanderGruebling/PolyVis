@@ -7,7 +7,7 @@ import { createControls } from './components/controls.js';
 await initLoader();
 
 createControls();
-createSignalPlots();
+await createSignalPlots();
 createHypnogram({});
 createEventTracks();
 
