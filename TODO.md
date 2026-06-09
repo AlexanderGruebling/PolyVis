@@ -3,7 +3,7 @@
 ## Visualization Enhancements
 
 - [x] **SpO₂ histogram** — small distribution chart with 88% / 90% thresholds marked, standard in sleep reports ✓
-- [ ] **Event density by sleep stage** — grouped bar chart showing respiratory/arousal event counts per stage (REM-predominant apnea is a key clinical finding)
+- [x] **Event density by sleep stage** — grouped bar chart showing respiratory/arousal event counts per stage (REM-predominant apnea is a key clinical finding) ✓
 - [x] **Timeline strip** — compact horizontal strip covering the full night with colored event ticks (apneas, hypopneas, desats, arousals) below the hypnogram ✓
 - [ ] **Respiratory event context viewer** — clicking an event auto-zooms to a 90-second window centered on it, mimicking commercial PSG software
 - [ ] **Report summary card** — print-friendly overlay with hypnogram, metrics grid, and patient info; "Export PDF" button

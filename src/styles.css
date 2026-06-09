@@ -298,6 +298,13 @@ nav {
     margin-bottom: 24px;
 }
 
+.overview-row-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
 .overview-card {
     background: var(--bg-card);
     border: 1px solid var(--border-color);
