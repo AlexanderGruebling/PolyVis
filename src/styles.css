@@ -366,6 +366,17 @@ nav {
     height: auto;
 }
 
+/* ── Severity badge dot ── */
+.severity-badge {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--badge-color);
+    vertical-align: middle;
+    margin: 0 4px;
+}
+
 .sleep-stages-list {
     list-style: none;
     padding: 0;

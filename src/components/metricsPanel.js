@@ -72,9 +72,16 @@ export async function getDesaturationIntervals(q) {
 }
 
 export function severityLabel(v) {
-    if (v < 5) return "(normal)";
-    if (v < 15) return "(mild)";
-    if (v < 30) return "(moderate)";
-    return "(severe)";
+    if (v < 5) return "normal";
+    if (v < 15) return "mild";
+    if (v < 30) return "moderate";
+    return "severe";
+}
+
+export function severityColor(v) {
+    if (v < 5) return "#3fb950";
+    if (v < 15) return "#d29922";
+    if (v < 30) return "#f0883e";
+    return "#f04040";
 }
 

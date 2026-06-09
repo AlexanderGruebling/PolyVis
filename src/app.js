@@ -1,7 +1,7 @@
 import * as vg from "@uwdata/vgplot";
 import { initLoader, q } from './data/loader.js';
 import { createHypnogram } from './components/hypnogram.js';
-import { getMetrics, severityLabel } from './components/metricsPanel.js';
+import { getMetrics, severityLabel, severityColor } from './components/metricsPanel.js';
 import { createSignalPlots } from './components/signalPlots.js';
 import { createEventTracks } from './components/eventTracks.js';
 import { createControls } from './components/controls.js';
@@ -68,7 +68,7 @@ function renderPage(pageId) {
                 grid.innerHTML = `
                     <div class="overview-metric">
                         <div class="overview-metric-label">AHI</div>
-                        <div class="overview-metric-value">${metrics.ahi.toFixed(1)} <span class="severity">${severityLabel(metrics.ahi)}</span></div>
+                        <div class="overview-metric-value">${metrics.ahi.toFixed(1)} <span class="severity-badge" style="--badge-color:${severityColor(metrics.ahi)}"></span><span class="severity">${severityLabel(metrics.ahi)}</span></div>
                     </div>
                     <div class="overview-metric">
                         <div class="overview-metric-label">ODI</div>
