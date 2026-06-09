@@ -5,6 +5,7 @@ import { getMetrics, severityLabel } from './components/metricsPanel.js';
 import { createSignalPlots } from './components/signalPlots.js';
 import { createEventTracks } from './components/eventTracks.js';
 import { createControls } from './components/controls.js';
+import { createTimelineStrip } from './components/timelineStrip.js';
 
 const rendered = new Set();
 const loadingEl = document.getElementById('app-loading');
@@ -46,6 +47,7 @@ function renderPage(pageId) {
     switch (pageId) {
         case 'page-overview':
             createHypnogram({ containerId: "overview-hypnogram", height: 400, clickToZoom: false });
+            createTimelineStrip();
             q(`CREATE OR REPLACE TABLE spo2_hist AS
                 SELECT ROUND("SaO2", 0) AS bucket, COUNT(*) AS cnt
                 FROM signal WHERE "SaO2" > 0

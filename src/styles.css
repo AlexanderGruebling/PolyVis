@@ -325,6 +325,47 @@ nav {
     width: 100%;
 }
 
+/* ── Timeline strip ── */
+#overview-timeline {
+    margin-top: 20px;
+}
+
+.timeline-grid {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 3px 8px;
+    align-items: center;
+}
+
+.timeline-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+    text-align: right;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    justify-content: flex-end;
+}
+
+.timeline-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+    flex-shrink: 0;
+}
+
+.timeline-plot > div {
+    width: 100% !important;
+}
+
+.timeline-plot svg {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
 .sleep-stages-list {
     list-style: none;
     padding: 0;

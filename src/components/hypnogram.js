@@ -16,13 +16,6 @@ export function createHypnogram({ containerId = "container2", height = 400, clic
             vg.line(vg.from("hypn"), { x: "Sample#", y: "Aux" }),
             vg.nearestX({ as: params.hypnPoint }),
             vg.ruleX({ x: params.hypnPoint }),
-            vg.textX(vg.from("hypn"), {
-                x: params.hypnPoint,
-                text: "Aux",
-                frameAnchor: "top",
-                dy: -8,
-                select: "nearestX"
-            }),
             vg.xTickFormat(timeFormat),
             vg.xLabel("HH:MM"),
             vg.height(height)
