@@ -20,29 +20,18 @@ export async function getMetrics(q) {
     const pctBelow88 = Number(pct88Rows[0].v);
     const pctBelow90 = Number(pct90Rows[0].v);
 
-    const allSaO2 = await q(`SELECT "SaO2" FROM signal WHERE "SaO2" > 0 ORDER BY time`);
-    const values = allSaO2.map(r => Number(r.SaO2));
-    let o2Desats = 0;
-    let inDesat = false;
-    let sum = 0;
-    for (let i = 0; i < values.length; i++) {
-        if (i >= 10) sum -= values[i - 10];
-        sum += values[i];
-        if (i >= 9) {
-            const baseline = sum / 10;
-            if (baseline - values[i] >= 3) {
-                if (!inDesat) { o2Desats++; inDesat = true; }
-            } else {
-                inDesat = false;
-            }
-        }
-    }
+    const intervals = await getDesaturationIntervals(q);
+    const o2Desats = intervals.length;
     const odi = sleepHours > 0 ? o2Desats / sleepHours : 0;
 
     return { ahi, odi, sleepHours, minSaO2, avgSaO2, pctBelow88, pctBelow90, respCnt, o2Desats };
 }
 
+let desatCache = null;
+
 export async function getDesaturationIntervals(q) {
+    if (desatCache) return desatCache;
+
     const allSaO2 = await q(`SELECT time, "SaO2" FROM signal WHERE "SaO2" > 0 ORDER BY time`);
     const vals = allSaO2.map(r => ({ time: Number(r.time), value: Number(r.SaO2) }));
     const intervals = [];
@@ -68,6 +57,8 @@ export async function getDesaturationIntervals(q) {
         }
     }
     if (start !== null) intervals.push({ start, end: vals[vals.length - 1].time, depth: Math.round(maxDrop * 10) / 10 });
+
+    desatCache = intervals;
     return intervals;
 }
 

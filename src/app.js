@@ -48,8 +48,8 @@ function renderPage(pageId) {
     switch (pageId) {
         case 'page-overview':
             createHypnogram({ containerId: "overview-hypnogram", height: 400, clickToZoom: false });
-            createTimelineStrip();
-            createEventDensity();
+            createTimelineStrip().catch(() => {});
+            createEventDensity().catch(() => {});
             q(`CREATE OR REPLACE TABLE spo2_hist AS
                 SELECT ROUND("SaO2", 0) AS bucket, COUNT(*) AS cnt
                 FROM signal WHERE "SaO2" > 0
@@ -64,7 +64,7 @@ function renderPage(pageId) {
                         vg.height(320),
                     )
                 );
-            });
+            }).catch(() => {});
             getMetrics(q).then(metrics => {
                 const grid = document.getElementById("overview-metrics").querySelector(".overview-metrics-grid");
                 grid.innerHTML = `
@@ -105,11 +105,11 @@ function renderPage(pageId) {
                         <div class="overview-metric-value">${metrics.o2Desats}</div>
                     </div>
                 `;
-            });
+            }).catch(() => {});
             break;
         case 'page-analysis':
             createControls();
-            createSignalPlots();
+            createSignalPlots().catch(() => {});
             createHypnogram({});
             createEventTracks();
             break;

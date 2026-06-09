@@ -2,9 +2,7 @@ import * as vg from "@uwdata/vgplot";
 import { q } from "../data/loader.js";
 import { getDesaturationIntervals } from "./metricsPanel.js";
 import { timeFormat } from "../utils/timeFormat.js";
-import { params } from "../state/params.js";
-
-const maxSamples = 32398;
+import { params, maxSamples } from "../state/params.js";
 
 const TRACKS = [
     { key: "desats", label: "Desats ≥3%", color: "#ff4060" },

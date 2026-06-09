@@ -92,7 +92,6 @@ nav {
 .page.active { display: block; }
 
 /* ── Analysis page grid layout ── */
-#page-analysis { display: none; }
 #page-analysis.active {
     display: grid;
     grid-template-columns: 300px 1fr;

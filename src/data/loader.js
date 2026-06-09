@@ -7,8 +7,12 @@ import respUrl from "/Resources/0000_resp.csv?url";
 const getFullUrl = (relativeUrl) => `${window.location.origin}${relativeUrl}`;
 
 const coord = vg.coordinator();
+let loaded = false;
 
 export async function initLoader() {
+    if (loaded) return;
+    loaded = true;
+
     coord.databaseConnector(vg.wasmConnector());
     coord.logger(null);
 
