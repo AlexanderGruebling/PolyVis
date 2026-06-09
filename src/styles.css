@@ -87,8 +87,13 @@ nav {
     color: var(--text-secondary);
 }
 
+/* ── SPA page switching ── */
+.page { display: none; }
+.page.active { display: block; }
+
 /* ── Analysis page grid layout ── */
-main {
+#page-analysis { display: none; }
+#page-analysis.active {
     display: grid;
     grid-template-columns: 300px 1fr;
     gap: 20px;
@@ -284,7 +289,6 @@ main {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
-    display: block;
 }
 
 .overview-row {
@@ -379,7 +383,6 @@ main {
     max-width: 720px;
     margin: 40px auto;
     padding: 0 20px;
-    display: block;
 }
 
 .about-layout h1 {

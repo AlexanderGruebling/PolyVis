@@ -7,8 +7,6 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main: resolve(__dirname, 'index.html'),
-        analysis: resolve(__dirname, 'analysis.html'),
-        about: resolve(__dirname, 'about.html'),
       },
       output: {
         manualChunks(id) {
@@ -19,12 +17,12 @@ export default defineConfig({
   },
   plugins: [
     {
-      name: 'clean-urls',
+      name: 'spa-fallback',
       configureServer(server) {
         server.middlewares.use((req, _, next) => {
-          const m = req.url.match(/^\/(analysis|about)(\?.*)?$/);
-          if (m) {
-            req.url = '/' + m[1] + '.html' + (m[2] || '');
+          const path = req.url.split('?')[0].split('#')[0];
+          if (path === '/' || path === '/analysis' || path === '/about') {
+            req.url = '/index.html';
           }
           next();
         });
