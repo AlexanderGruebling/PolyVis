@@ -1,11 +1,11 @@
-import * as vg from "@uwdata/vgplot";
-import { q } from "../data/loader.js";
+import * as vg from '@uwdata/vgplot';
+import { q } from '../data/loader.js';
 
 export async function createEventDensity() {
-    const container = document.getElementById("overview-event-density");
-    container.innerHTML = "";
+  const container = document.getElementById('overview-event-density');
+  container.innerHTML = '';
 
-    await q(`
+  await q(`
         CREATE OR REPLACE TABLE event_density AS
         SELECT h.Aux AS stage, 'Respiratory' AS type, COUNT(*)::INT AS cnt
         FROM resp r
@@ -20,19 +20,19 @@ export async function createEventDensity() {
         GROUP BY h.Aux
     `);
 
-    container.appendChild(
-        vg.plot(
-            vg.barY(vg.from("event_density"), {
-                x: "stage",
-                y: "cnt",
-                fill: "type",
-            }),
-            vg.xDomain(["1", "2", "3", "4", "R"]),
-            vg.colorDomain(["Respiratory", "Arousal"]),
-            vg.colorRange(["#a6e3a1", "#cba6f7"]),
-            vg.xLabel("Sleep Stage"),
-            vg.yLabel("Event Count"),
-            vg.height(320),
-        )
-    );
+  container.appendChild(
+    vg.plot(
+      vg.barY(vg.from('event_density'), {
+        x: 'stage',
+        y: 'cnt',
+        fill: 'type',
+      }),
+      vg.xDomain(['1', '2', '3', '4', 'R']),
+      vg.colorDomain(['Respiratory', 'Arousal']),
+      vg.colorRange(['#a6e3a1', '#cba6f7']),
+      vg.xLabel('Sleep Stage'),
+      vg.yLabel('Event Count'),
+      vg.height(320),
+    ),
+  );
 }
