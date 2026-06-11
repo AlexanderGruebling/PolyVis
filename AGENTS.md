@@ -59,6 +59,4 @@ Open TODO items have been migrated from `TODO.md` to GitHub Issues. See https://
 
 ## Known Gaps
 
-- No tests, linting, formatting, or type checking
-- No CI/CD
 - Single hardcoded patient dataset (`0000`); no multi-patient navigation

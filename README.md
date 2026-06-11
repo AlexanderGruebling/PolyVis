@@ -1,7 +1,7 @@
 # PolyVis ![CI](https://github.com/AlexanderGruebling/PolyVis/actions/workflows/ci.yml/badge.svg)
 Repository of PolyVis, a project created as part of my bachelor thesis in Bioinformatics. It aims at visualizing data from Polysomnography and helping to diagnose the different forms of sleep apnea.
 
-**Live demo:** [polyvis.onrender.com](https://polyvis.onrender.com/)
+**Live demo:** [alexandergruebling.github.io/PolyVis](https://alexandergruebling.github.io/PolyVis/)
 
 ## Screenshots
 ![img.png](Documentation/img.png)

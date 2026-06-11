@@ -1,7 +1,8 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
+  base: mode === 'production' ? '/PolyVis/' : '/',
   build: {
     target: 'esnext',
     rollupOptions: {
@@ -29,4 +30,4 @@ export default defineConfig({
       }
     }
   ]
-});
+}));

@@ -20,6 +20,7 @@ import { createEventDensity } from './components/eventDensity.js';
 import { createTransitionMatrix } from './components/transitionMatrix.js';
 import { initHoverCard } from './components/hoverCard.js';
 
+const base = import.meta.env.BASE_URL;
 const rendered = new Set();
 const loadingEl = document.getElementById('app-loading');
 
@@ -37,7 +38,15 @@ const titles = {
   'page-about': 'About — PolyVis',
 };
 
-function showPage(path) {
+function normalizePath(path) {
+  if (base !== '/' && path.startsWith(base)) {
+    path = '/' + path.slice(base.length);
+  }
+  return path;
+}
+
+function showPage(rawPath) {
+  const path = normalizePath(rawPath);
   document
     .querySelectorAll('.page')
     .forEach((p) => p.classList.remove('active'));
@@ -49,7 +58,7 @@ function showPage(path) {
   const page = document.getElementById(pageId);
   if (page) page.classList.add('active');
 
-  const link = document.querySelector(`.nav-link[href="${path}"]`);
+  const link = document.querySelector(`.nav-link[data-route="${path}"]`);
   if (link) link.classList.add('active');
 
   document.title = titles[pageId] || 'PolyVis';
@@ -215,12 +224,19 @@ const zoomToRange = (range) => {
 document.querySelectorAll('.nav-link').forEach((link) => {
   link.addEventListener('click', (e) => {
     e.preventDefault();
-    const path = new URL(link.href).pathname;
-    history.pushState({}, '', path);
-    showPage(path);
+    const rawPath = new URL(link.href).pathname;
+    history.pushState({}, '', rawPath);
+    showPage(rawPath);
   });
 });
 
 window.addEventListener('popstate', () => showPage(location.pathname));
 
-showPage(location.pathname);
+const redirect = sessionStorage.getItem('gh-pages-redirect');
+if (redirect) {
+  sessionStorage.removeItem('gh-pages-redirect');
+  history.replaceState({}, '', redirect);
+  showPage(redirect);
+} else {
+  showPage(location.pathname);
+}
