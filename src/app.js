@@ -18,6 +18,7 @@ import { createControls } from './components/controls.js';
 import { createTimelineStrip } from './components/timelineStrip.js';
 import { createEventDensity } from './components/eventDensity.js';
 import { createTransitionMatrix } from './components/transitionMatrix.js';
+import { initHoverCard } from './components/hoverCard.js';
 
 const rendered = new Set();
 const loadingEl = document.getElementById('app-loading');
@@ -201,6 +202,7 @@ await initLoader();
 const [{ cnt }] = await q('SELECT COUNT(*) AS cnt FROM signal');
 setMaxSamples(cnt);
 loadingEl.classList.add('hidden');
+initHoverCard();
 
 const zoomToRange = (range) => {
   const x1 = Math.max(minSamples, Math.min(range[0], maxSamples));

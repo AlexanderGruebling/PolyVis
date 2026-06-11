@@ -1,6 +1,9 @@
 import * as vg from '@uwdata/vgplot';
 import { params, maxSamples } from '../state/params.js';
 import { timeFormat } from '../utils/timeFormat.js';
+import { trackCursor, cursorLeft, updateHoverCard } from './hoverCard.js';
+
+let hypnPointHandler = null;
 
 export function createHypnogram({
   containerId = 'container2',
@@ -18,6 +21,20 @@ export function createHypnogram({
       ]);
     });
   }
+
+  container.addEventListener('mousemove', (e) => {
+    trackCursor(e.clientX, e.clientY);
+  });
+
+  container.addEventListener('mouseleave', () => {
+    cursorLeft();
+  });
+
+  if (hypnPointHandler) {
+    params.hypnPoint.removeEventListener('value', hypnPointHandler);
+  }
+  hypnPointHandler = (value) => updateHoverCard(value);
+  params.hypnPoint.addEventListener('value', hypnPointHandler);
 
   const marks = [
     vg.line(vg.from('hypn'), { x: 'Sample#', y: 'Aux' }),

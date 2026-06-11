@@ -11,9 +11,10 @@
 | `npm run lint:fix` | ESLint with `--fix` |
 | `npm run format` | Prettier (`--write` all `src/`) |
 | `npm run format:check` | Prettier check-only |
-| `npm test` | **No-op** — no test suite exists |
+| `npm test` | Vitest runner (`vitest run`) — 14 tests covering `metricsPanel.js` |
+| `npm run test:watch` | Vitest in watch mode (`vitest`) |
 
-No typecheck or CI/CD tooling is configured.
+No typecheck or CI/CD tooling is configured (beyond GitHub Actions CI).
 
 ## Tech Stack
 
@@ -40,6 +41,21 @@ No typecheck or CI/CD tooling is configured.
 - vgplot marks use `vg.plot()`, `vg.line()`, `vg.ruleX()`, `vg.rectX()`, `vg.barY()`, etc.
 - Silent error handling pattern: `.catch(() => {})`
 - DuckDB logging disabled via `coord.logger(null)`
+
+## GitHub Issues
+
+Open TODO items have been migrated from `TODO.md` to GitHub Issues. See https://github.com/AlexanderGruebling/PolyVis/issues
+
+| # | Title |
+|---|-------|
+| 1 | Respiratory event context viewer |
+| 2 | Report summary card with PDF export |
+| 3 | Scatter: desaturation severity by sleep stage |
+| 4 | Heart rate trend overlay |
+| 5 | Hypnogram brush → analysis page navigation |
+| 6 | Click timeline event → navigate to analysis |
+| 7 | Event detail hover card |
+| 8 | Event-locked SpO₂ averaging |
 
 ## Known Gaps
 

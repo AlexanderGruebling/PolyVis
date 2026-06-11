@@ -3,6 +3,7 @@ import { params } from '../state/params.js';
 import { timeFormat } from '../utils/timeFormat.js';
 import { q } from '../data/loader.js';
 import { getDesaturationIntervals } from './metricsPanel.js';
+import { trackCursor, cursorLeft } from './hoverCard.js';
 
 const keys = [
   { name: 'EEG', key: 'EEG' },
@@ -19,14 +20,14 @@ export async function createSignalPlots() {
   const desatIntervals = await getDesaturationIntervals(q);
   if (desatIntervals.length > 0) {
     const rows = desatIntervals
-      .map((r) => `(${r.start}, ${r.end}, ${r.depth}, '↓${r.depth}%')`)
+      .map((r) => `(${r.start}, ${r.end}, ${r.depth})`)
       .join(',');
     await q(
-      `CREATE OR REPLACE TABLE desats AS SELECT * FROM (VALUES ${rows}) AS t(x1, x2, depth, label)`,
+      `CREATE OR REPLACE TABLE desats AS SELECT * FROM (VALUES ${rows}) AS t(x1, x2, depth)`,
     );
   } else {
     await q(
-      `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth, '' AS label WHERE FALSE`,
+      `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth WHERE FALSE`,
     );
   }
 
@@ -75,6 +76,13 @@ export async function createSignalPlots() {
           fillOpacity: 0.8,
         }),
       );
+      marks.push(vg.nearestX({ as: params.hypnPoint }));
+      cardBody.addEventListener('mousemove', (e) => {
+        trackCursor(e.clientX, e.clientY);
+      });
+      cardBody.addEventListener('mouseleave', () => {
+        cursorLeft();
+      });
     }
 
     const plot = vg.plot(
