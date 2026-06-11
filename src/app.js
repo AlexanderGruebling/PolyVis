@@ -146,6 +146,45 @@ function renderPage(pageId) {
                 `;
         })
         .catch(() => {});
+      q(`
+        WITH onset AS (
+          SELECT MIN("Sample#") AS first_sleep FROM hypn
+          WHERE Aux IN ('1','2','3','4','R')
+        )
+        SELECT
+          ROUND(
+            SUM(CASE WHEN h.Aux = 'W' AND h."Sample#" >= o.first_sleep THEN 1 ELSE 0 END) * 30.0 / 60.0, 1
+          ) AS waso_min,
+          ROUND(
+            SUM(CASE WHEN h.Aux = '1' THEN 1 ELSE 0 END) * 100.0 /
+            NULLIF(SUM(CASE WHEN h.Aux IN ('1','2','3','4','R') THEN 1 ELSE 0 END), 0), 1
+          ) AS n1_pct,
+          ROUND(
+            SUM(CASE WHEN h.Aux IN ('1','2','3','4','R') THEN 1 ELSE 0 END) * 100.0 / COUNT(*), 1
+          ) AS sleep_efficiency
+        FROM hypn h
+        CROSS JOIN onset o
+      `)
+        .then(([arch]) => {
+          const el = document.getElementById('overview-architecture');
+          el.innerHTML = `
+            <div class="arch-stats">
+              <div class="arch-stat">
+                <div class="arch-stat-label">WASO</div>
+                <div class="arch-stat-value">${arch.waso_min} <span class="arch-stat-unit">min</span></div>
+              </div>
+              <div class="arch-stat">
+                <div class="arch-stat-label">N1 %</div>
+                <div class="arch-stat-value">${arch.n1_pct}<span class="arch-stat-unit">%</span></div>
+              </div>
+              <div class="arch-stat">
+                <div class="arch-stat-label">Sleep Efficiency</div>
+                <div class="arch-stat-value">${arch.sleep_efficiency}<span class="arch-stat-unit">%</span></div>
+              </div>
+            </div>
+          `;
+        })
+        .catch(() => {});
       break;
     case 'page-analysis':
       createControls();

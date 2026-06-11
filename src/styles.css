@@ -310,10 +310,65 @@ nav {
   height: auto;
 }
 
+/* ── Sleep Architecture row ── */
+.overview-row-wide {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
 /* ── Transition matrix ── */
 #overview-transitions {
   display: flex;
   justify-content: center;
+}
+
+/* ── Sleep Architecture card ── */
+#architecture-card {
+  display: flex;
+  flex-direction: column;
+}
+
+#architecture-card > div:last-child {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Sleep Architecture stats ── */
+.arch-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.arch-stat {
+  text-align: center;
+}
+
+.arch-stat-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.arch-stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.arch-stat-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--text-secondary);
+  margin-left: 2px;
 }
 
 /* ── Overview page ── */
