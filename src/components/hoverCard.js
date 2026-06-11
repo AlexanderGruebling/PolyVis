@@ -72,8 +72,7 @@ export function updateHoverCard(pos) {
 
       const stageCode = (stageRows[0] && stageRows[0].Aux) || '—';
       const stageLabel = STAGE_LABELS[stageCode] || stageCode;
-      const desatText =
-        desatDepth !== null ? `↓${desatDepth}%` : '—';
+      const desatText = desatDepth !== null ? `↓${desatDepth}%` : '—';
       const respCount = (respRows[0] && respRows[0].cnt) || 0;
       const arouCount = (arouRows[0] && arouRows[0].cnt) || 0;
 
