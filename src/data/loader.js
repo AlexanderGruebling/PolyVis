@@ -9,6 +9,13 @@ const getFullUrl = (relativeUrl) => `${window.location.origin}${relativeUrl}`;
 const coord = vg.coordinator();
 let loaded = false;
 
+async function loadCSV(name, url) {
+  await coord.query(
+    `CREATE TABLE "${name}" AS SELECT * FROM read_csv_auto('${url}', header=true, delim=',')`,
+    { type: 'json' },
+  );
+}
+
 export async function initLoader() {
   if (loaded) return;
   loaded = true;
@@ -24,13 +31,7 @@ export async function initLoader() {
   ];
 
   for (const dataset of datasets) {
-    await coord.exec(
-      vg.loadCSV(dataset.name, dataset.url, {
-        header: true,
-        delim: ',',
-        auto_detect: false,
-      }),
-    );
+    await loadCSV(dataset.name, dataset.url);
   }
 }
 
