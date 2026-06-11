@@ -310,6 +310,12 @@ nav {
   height: auto;
 }
 
+/* ── Transition matrix ── */
+#overview-transitions {
+  display: flex;
+  justify-content: center;
+}
+
 /* ── Overview page ── */
 .overview-layout {
   max-width: 1200px;

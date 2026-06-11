@@ -17,6 +17,7 @@ import { createEventTracks } from './components/eventTracks.js';
 import { createControls } from './components/controls.js';
 import { createTimelineStrip } from './components/timelineStrip.js';
 import { createEventDensity } from './components/eventDensity.js';
+import { createTransitionMatrix } from './components/transitionMatrix.js';
 
 const rendered = new Set();
 const loadingEl = document.getElementById('app-loading');
@@ -68,6 +69,7 @@ function renderPage(pageId) {
       });
       createTimelineStrip().catch(() => {});
       createEventDensity().catch(() => {});
+      createTransitionMatrix().catch(() => {});
       q(`CREATE OR REPLACE TABLE spo2_hist AS
                 SELECT ROUND("SaO2", 0) AS bucket, COUNT(*) AS cnt
                 FROM signal WHERE "SaO2" > 0
