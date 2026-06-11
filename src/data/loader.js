@@ -24,7 +24,13 @@ export async function initLoader() {
   ];
 
   for (const dataset of datasets) {
-    await coord.exec(vg.loadCSV(dataset.name, dataset.url));
+    await coord.exec(
+      vg.loadCSV(dataset.name, dataset.url, {
+        header: true,
+        delim: ',',
+        auto_detect: false,
+      }),
+    );
   }
 }
 
