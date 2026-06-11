@@ -34,6 +34,13 @@ No typecheck or CI/CD tooling is configured (beyond GitHub Actions CI).
 - **Data:** CSV files in `Resources/` — single patient (`0000_*`); loaded into DuckDB on startup via `src/data/loader.js`
 - **Vendor chunking:** `@uwdata` packages extracted into separate `vendor` chunk (`vite.config.js:12-14`)
 
+## Commit Conventions
+
+- Every commit MUST reference an issue: `[TASK] description; refs #id`
+- Use `[BUGFIX]` for bug fixes, `[FEATURE]` for new features, `[TASK]` for everything else
+- Example: `[FEATURE] Event detail hover card; refs #7`
+- NEVER commit without an issue reference
+
 ## Key Conventions
 
 - **kebab-case** for CSS classes and HTML IDs; **camelCase** for JS names

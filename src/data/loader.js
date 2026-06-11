@@ -9,19 +9,15 @@ const getFullUrl = (relativeUrl) => `${window.location.origin}${relativeUrl}`;
 const coord = vg.coordinator();
 let loaded = false;
 
-async function loadCSV(name, url) {
-  await coord.query(
-    `CREATE TABLE "${name}" AS SELECT * FROM read_csv_auto('${url}', header=true, delim=',')`,
-    { type: 'json' },
-  );
-}
-
 export async function initLoader() {
   if (loaded) return;
   loaded = true;
 
-  coord.databaseConnector(vg.wasmConnector());
+  const connector = vg.wasmConnector();
+  coord.databaseConnector(connector);
   coord.logger(null);
+
+  const db = await connector.getDuckDB();
 
   const datasets = [
     { name: 'signal', url: getFullUrl(signalsUrl) },
@@ -31,8 +27,18 @@ export async function initLoader() {
   ];
 
   for (const dataset of datasets) {
-    await loadCSV(dataset.name, dataset.url);
+    const response = await fetch(dataset.url);
+    const buffer = await response.arrayBuffer();
+    const filename = `${dataset.name}.csv`;
+    await db.registerFileBuffer(filename, new Uint8Array(buffer));
+    await coord.exec(
+      `CREATE TABLE "${dataset.name}" AS SELECT * FROM read_csv_auto('${filename}', header=true, delim=',')`,
+    );
   }
+
+  await coord.exec(
+    `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth WHERE FALSE`,
+  );
 }
 
 export function q(sql) {
