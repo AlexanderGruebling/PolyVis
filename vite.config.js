@@ -22,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       configureServer(server) {
         server.middlewares.use((req, _, next) => {
           const path = req.url.split('?')[0].split('#')[0];
-          if (path === '/' || path === '/analysis' || path === '/about') {
+          if (path === '/' || path === '/analysis' || path === '/patients' || path === '/about') {
             req.url = '/index.html';
           }
           next();

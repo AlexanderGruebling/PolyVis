@@ -2,3 +2,5 @@ node_modules/
 .idea/
 dist/
 opencode.json
+.env
+public/shhs-datasets
