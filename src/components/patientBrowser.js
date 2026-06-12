@@ -72,7 +72,7 @@ export function createPatientBrowser(containerId, { onSwitchPatient } = {}) {
 async function loadAndRender() {
   try {
     const patients = await getPatients();
-    patientMap = new Map(patients.map(p => [p.id, p]));
+    patientMap = new Map(patients.map((p) => [p.id, p]));
     render();
   } catch (err) {
     console.warn('Failed to load patient catalog:', err);
@@ -130,7 +130,8 @@ function render() {
 
   let table = '<table class="patients-table"><thead><tr>';
   columns.forEach((col) => {
-    const arrow = sortKey === col.key ? (sortAsc ? ' &#9650;' : ' &#9660;') : '';
+    const arrow =
+      sortKey === col.key ? (sortAsc ? ' &#9650;' : ' &#9660;') : '';
     table += `<th data-key="${col.key}">${col.label}${arrow}</th>`;
   });
   table += '<th>Signals</th><th></th></tr></thead><tbody>';
@@ -225,7 +226,9 @@ function renderPagination(total, totalPages) {
       if (page >= 1 && page <= totalPages && page !== currentPage) {
         currentPage = page;
         render();
-        document.querySelector('.patients-table-wrapper').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document
+          .querySelector('.patients-table-wrapper')
+          .scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });

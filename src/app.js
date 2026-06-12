@@ -80,11 +80,21 @@ function clearRenderedPages() {
   rendered.clear();
 
   document.querySelectorAll('.plot-card').forEach((el) => el.remove());
-  document.querySelectorAll('#overview-hypnogram > div, #container2 > div').forEach((el) => el.remove());
-  document.querySelectorAll('#overview-spo2 > div, #overview-event-density > div, #overview-transitions > div').forEach((el) => el.remove());
+  document
+    .querySelectorAll('#overview-hypnogram > div, #container2 > div')
+    .forEach((el) => el.remove());
+  document
+    .querySelectorAll(
+      '#overview-spo2 > div, #overview-event-density > div, #overview-transitions > div',
+    )
+    .forEach((el) => el.remove());
 
-  document.querySelectorAll('.overview-metrics-grid').forEach((el) => { el.innerHTML = ''; });
-  document.querySelectorAll('.timeline-grid').forEach((el) => { el.innerHTML = ''; });
+  document.querySelectorAll('.overview-metrics-grid').forEach((el) => {
+    el.innerHTML = '';
+  });
+  document.querySelectorAll('.timeline-grid').forEach((el) => {
+    el.innerHTML = '';
+  });
 
   const arch = document.getElementById('overview-architecture');
   if (arch) arch.innerHTML = '';

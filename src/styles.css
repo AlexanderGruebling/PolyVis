@@ -662,7 +662,9 @@ nav {
   padding: 7px 14px;
   font-size: 13px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .patients-compare-btn:hover:not(:disabled) {
@@ -922,7 +924,9 @@ nav {
   padding: 4px 10px;
   font-size: 12px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .pag-btn:hover:not(:disabled) {

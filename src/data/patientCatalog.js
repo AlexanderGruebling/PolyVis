@@ -81,7 +81,7 @@ async function loadSignalManifest() {
     const resp = await fetch(`${base}Resources/signal_manifest.json`);
     if (resp.ok) {
       const ids = await resp.json();
-      ids.forEach(id => patientsWithSignals.add(id));
+      ids.forEach((id) => patientsWithSignals.add(id));
       return;
     }
   } catch {
@@ -92,5 +92,8 @@ async function loadSignalManifest() {
 
 export async function getPatients() {
   const rows = await q('SELECT * FROM patients ORDER BY id');
-  return rows.map(p => ({ ...p, has_signals: patientsWithSignals.has(p.id) }));
+  return rows.map((p) => ({
+    ...p,
+    has_signals: patientsWithSignals.has(p.id),
+  }));
 }

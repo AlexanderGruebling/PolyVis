@@ -22,7 +22,7 @@ export async function createCohortCompare(containerId, patientIds) {
 
 async function renderComparison(container, ids) {
   const patients = await q(`
-    SELECT * FROM patients WHERE id IN (${ids.map(id => `'${id}'`).join(',')})
+    SELECT * FROM patients WHERE id IN (${ids.map((id) => `'${id}'`).join(',')})
   `);
 
   const metricsTable = document.createElement('div');
@@ -36,14 +36,46 @@ async function renderComparison(container, ids) {
   const metricRows = [
     { label: 'Age', key: 'age', fmt: (v) => v ?? '—' },
     { label: 'Sex', key: 'sex', fmt: (v) => v ?? '—' },
-    { label: 'BMI', key: 'bmi', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'AHI', key: 'ahi', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'WASO (min)', key: 'waso', fmt: (v) => (v != null ? Number(v).toFixed(0) : '—') },
-    { label: 'N1 %', key: 'n1_pct', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'N2 %', key: 'n2_pct', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'N3/4 %', key: 'n34_pct', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'REM %', key: 'rem_pct', fmt: (v) => (v != null ? Number(v).toFixed(1) : '—') },
-    { label: 'Sleep latency', key: 'sleep_latency', fmt: (v) => (v != null ? `${Number(v).toFixed(0)} min` : '—') },
+    {
+      label: 'BMI',
+      key: 'bmi',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'AHI',
+      key: 'ahi',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'WASO (min)',
+      key: 'waso',
+      fmt: (v) => (v != null ? Number(v).toFixed(0) : '—'),
+    },
+    {
+      label: 'N1 %',
+      key: 'n1_pct',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'N2 %',
+      key: 'n2_pct',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'N3/4 %',
+      key: 'n34_pct',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'REM %',
+      key: 'rem_pct',
+      fmt: (v) => (v != null ? Number(v).toFixed(1) : '—'),
+    },
+    {
+      label: 'Sleep latency',
+      key: 'sleep_latency',
+      fmt: (v) => (v != null ? `${Number(v).toFixed(0)} min` : '—'),
+    },
   ];
 
   metricRows.forEach((row) => {
@@ -83,11 +115,13 @@ async function renderScatterPlot(container, ids) {
   await coordExec(`
     CREATE TABLE "${tableName}" AS
     SELECT * FROM patients
-    WHERE id IN (${ids.map(id => `'${id}'`).join(',')})
+    WHERE id IN (${ids.map((id) => `'${id}'`).join(',')})
   `);
 
   for (let i = Math.max(1, scatterSeq - 10); i < scatterSeq; i++) {
-    await coordExec(`DROP TABLE IF EXISTS "cohort_selected_${i}"`).catch(() => {});
+    await coordExec(`DROP TABLE IF EXISTS "cohort_selected_${i}"`).catch(
+      () => {},
+    );
   }
 
   const layers = [
@@ -109,12 +143,7 @@ async function renderScatterPlot(container, ids) {
   ];
 
   plotDiv.appendChild(
-    vg.plot(
-      ...layers,
-      vg.xLabel('BMI'),
-      vg.yLabel('AHI'),
-      vg.height(320),
-    ),
+    vg.plot(...layers, vg.xLabel('BMI'), vg.yLabel('AHI'), vg.height(320)),
   );
 }
 
@@ -125,7 +154,9 @@ async function renderPercentileRanks(container, ids) {
   container.appendChild(section);
 
   for (const id of ids) {
-    const patient = (await q(`SELECT ahi, bmi FROM patients WHERE id = '${id}'`))[0];
+    const patient = (
+      await q(`SELECT ahi, bmi FROM patients WHERE id = '${id}'`)
+    )[0];
     if (!patient || patient.ahi == null) continue;
 
     const [ahiRank] = await q(`
