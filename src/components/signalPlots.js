@@ -6,11 +6,15 @@ import { getDesaturationIntervals } from './metricsPanel.js';
 import { trackCursor, cursorLeft } from './hoverCard.js';
 
 const keys = [
-  { name: 'EEG', key: 'EEG' },
-  { name: 'SaO2', key: 'SaO2' },
-  { name: 'ECG', key: 'ECG' },
-  { name: 'THOR RES', key: 'THOR RES' },
-  { name: 'ABDO RES', key: 'ABDO RES' },
+  { name: 'EEG', channel: 'EEG' },
+  { name: 'SaO2', channel: 'SaO2' },
+  { name: 'ECG', channel: 'ECG' },
+  { name: 'THOR RES', channel: 'THOR RES' },
+  { name: 'ABDO RES', channel: 'ABDO RES' },
+  { name: 'AIRFLOW', channel: 'AIRFLOW' },
+  { name: 'EMG', channel: 'EMG' },
+  { name: 'EOG(L)', channel: 'EOG(L)' },
+  { name: 'EOG(R)', channel: 'EOG(R)' },
 ];
 
 export async function createSignalPlots() {
@@ -31,18 +35,22 @@ export async function createSignalPlots() {
     );
   }
 
-  keys.forEach((key) => {
+  const availableChannels = await getAvailableChannels();
+
+  const activeKeys = keys.filter((k) => availableChannels.has(k.channel));
+
+  activeKeys.forEach((key) => {
     const row = document.createElement('div');
     row.className = 'row';
     row.appendChild(
       Object.assign(document.createElement('label'), {
-        htmlFor: key.key,
+        htmlFor: key.channel,
         textContent: key.name,
       }),
     );
     const checkbox = Object.assign(document.createElement('input'), {
       type: 'checkbox',
-      id: key.key,
+      id: key.channel,
     });
 
     const card = document.createElement('div');
@@ -65,9 +73,14 @@ export async function createSignalPlots() {
     row.appendChild(checkbox);
     controls.appendChild(row);
 
-    const marks = [vg.line(vg.from('signal'), { x: 'time', y: key.key })];
+    const marks = [
+      vg.line(vg.from('signal', { filter: `channel = '${key.channel}'` }), {
+        x: 'time',
+        y: 'value',
+      }),
+    ];
 
-    if (key.key === 'SaO2') {
+    if (key.channel === 'SaO2') {
       marks.unshift(
         vg.rectX(vg.from('desats'), {
           x1: 'x1',
@@ -93,7 +106,18 @@ export async function createSignalPlots() {
       vg.xTickFormat(timeFormat),
       vg.xLabel('HH:MM'),
     );
-    plot.setAttribute('id', `${key.key}_plot`);
+    plot.setAttribute('id', `${key.channel}_plot`);
     cardBody.appendChild(plot);
   });
+}
+
+async function getAvailableChannels() {
+  try {
+    const rows = await q(
+      `SELECT DISTINCT channel FROM signal ORDER BY channel`,
+    );
+    return new Set(rows.map((r) => r.channel));
+  } catch {
+    return new Set();
+  }
 }

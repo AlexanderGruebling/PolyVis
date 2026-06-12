@@ -950,3 +950,76 @@ nav {
   padding: 0 4px;
   font-size: 12px;
 }
+
+/* ── Upload Zone ── */
+
+.upload-zone {
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  padding: 48px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s,
+    background 0.2s;
+  margin-bottom: 8px;
+}
+
+.upload-zone:hover,
+.upload-zone.dragover {
+  border-color: var(--accent);
+  background: rgba(88, 166, 255, 0.06);
+}
+
+.upload-input {
+  display: none;
+}
+
+.upload-label {
+  color: var(--text-secondary);
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.upload-status {
+  margin-top: 12px;
+  font-size: 13px;
+  min-height: 20px;
+}
+
+.upload-error {
+  color: #f04040;
+}
+
+.upload-success {
+  color: #3fb950;
+}
+
+.upload-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--text-secondary);
+}
+
+.upload-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: upload-spin 0.7s linear infinite;
+}
+
+@keyframes upload-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#page-patients hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 16px 0;
+}

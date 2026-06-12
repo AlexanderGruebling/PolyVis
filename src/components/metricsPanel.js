@@ -10,16 +10,16 @@ export async function getMetrics(q) {
   const ahi = sleepHours > 0 ? respCnt / sleepHours : 0;
 
   const saO2Rows = await q(
-    `SELECT MIN("SaO2") AS m, AVG("SaO2") AS a FROM signal WHERE "SaO2" > 0`,
+    `SELECT MIN(value) AS m, AVG(value) AS a FROM signal WHERE channel = 'SaO2' AND value > 0`,
   );
   const minSaO2 = Number(saO2Rows[0].m);
   const avgSaO2 = Number(saO2Rows[0].a);
 
   const pct88Rows = await q(
-    `SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM signal WHERE "SaO2" > 0) AS v FROM signal WHERE "SaO2" > 0 AND "SaO2" < 88`,
+    `SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM signal WHERE channel = 'SaO2' AND value > 0) AS v FROM signal WHERE channel = 'SaO2' AND value > 0 AND value < 88`,
   );
   const pct90Rows = await q(
-    `SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM signal WHERE "SaO2" > 0) AS v FROM signal WHERE "SaO2" > 0 AND "SaO2" < 90`,
+    `SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM signal WHERE channel = 'SaO2' AND value > 0) AS v FROM signal WHERE channel = 'SaO2' AND value > 0 AND value < 90`,
   );
   const pctBelow88 = Number(pct88Rows[0].v);
   const pctBelow90 = Number(pct90Rows[0].v);
@@ -47,11 +47,11 @@ export async function getDesaturationIntervals(q) {
   if (desatCache) return desatCache;
 
   const allSaO2 = await q(
-    `SELECT time, "SaO2" FROM signal WHERE "SaO2" > 0 ORDER BY time`,
+    `SELECT time, value FROM signal WHERE channel = 'SaO2' AND value > 0 ORDER BY time`,
   );
   const vals = allSaO2.map((r) => ({
     time: Number(r.time),
-    value: Number(r.SaO2),
+    value: Number(r.value),
   }));
   const intervals = [];
   let start = null;

@@ -55,7 +55,7 @@ describe('getDesaturationIntervals', () => {
     const mockQ = vi
       .fn()
       .mockResolvedValue(
-        Array.from({ length: 20 }, (_, i) => ({ time: i, SaO2: 97 })),
+        Array.from({ length: 20 }, (_, i) => ({ time: i, value: 97 })),
       );
     expect(await mod.getDesaturationIntervals(mockQ)).toEqual([]);
   });
@@ -63,8 +63,8 @@ describe('getDesaturationIntervals', () => {
   it('detects a desaturation when SaO₂ drops ≥3 % from baseline', async () => {
     const mod = await import('./metricsPanel.js');
     const data = [
-      ...Array.from({ length: 10 }, (_, i) => ({ time: i, SaO2: 100 })),
-      ...Array.from({ length: 10 }, (_, i) => ({ time: i + 10, SaO2: 90 })),
+      ...Array.from({ length: 10 }, (_, i) => ({ time: i, value: 100 })),
+      ...Array.from({ length: 10 }, (_, i) => ({ time: i + 10, value: 90 })),
     ];
     const mockQ = vi.fn().mockResolvedValue(data);
     const intervals = await mod.getDesaturationIntervals(mockQ);
@@ -75,10 +75,10 @@ describe('getDesaturationIntervals', () => {
   it('detects multiple separate desaturations', async () => {
     const mod = await import('./metricsPanel.js');
     const data = [
-      ...Array.from({ length: 10 }, (_, i) => ({ time: i, SaO2: 100 })),
-      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 10, SaO2: 90 })),
-      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 15, SaO2: 100 })),
-      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 20, SaO2: 91 })),
+      ...Array.from({ length: 10 }, (_, i) => ({ time: i, value: 100 })),
+      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 10, value: 90 })),
+      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 15, value: 100 })),
+      ...Array.from({ length: 5 }, (_, i) => ({ time: i + 20, value: 91 })),
     ];
     const mockQ = vi.fn().mockResolvedValue(data);
     const intervals = await mod.getDesaturationIntervals(mockQ);
@@ -88,8 +88,8 @@ describe('getDesaturationIntervals', () => {
   it('ignores drops smaller than 3 %', async () => {
     const mod = await import('./metricsPanel.js');
     const data = [
-      ...Array.from({ length: 10 }, (_, i) => ({ time: i, SaO2: 100 })),
-      ...Array.from({ length: 10 }, (_, i) => ({ time: i + 10, SaO2: 98 })),
+      ...Array.from({ length: 10 }, (_, i) => ({ time: i, value: 100 })),
+      ...Array.from({ length: 10 }, (_, i) => ({ time: i + 10, value: 98 })),
     ];
     const mockQ = vi.fn().mockResolvedValue(data);
     expect(await mod.getDesaturationIntervals(mockQ)).toEqual([]);
@@ -111,7 +111,7 @@ describe('getMetrics', () => {
       .mockResolvedValueOnce([{ v: 3.1 }])
       .mockResolvedValueOnce([{ v: 7.2 }])
       .mockResolvedValueOnce(
-        Array.from({ length: 20 }, (_, i) => ({ time: i, SaO2: 100 })),
+        Array.from({ length: 20 }, (_, i) => ({ time: i, value: 100 })),
       );
 
     const metrics = await mod.getMetrics(mockQ);
@@ -136,7 +136,7 @@ describe('getMetrics', () => {
       .mockResolvedValueOnce([{ v: 0 }])
       .mockResolvedValueOnce([{ v: 0 }])
       .mockResolvedValueOnce(
-        Array.from({ length: 20 }, (_, i) => ({ time: i, SaO2: 100 })),
+        Array.from({ length: 20 }, (_, i) => ({ time: i, value: 100 })),
       );
 
     const metrics = await mod.getMetrics(mockQ);

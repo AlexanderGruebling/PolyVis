@@ -1,8 +1,24 @@
 import * as vg from '@uwdata/vgplot';
+import { parseEDF, annotationsToTables } from '../utils/edfParser.js';
+import { mapSignalLabel } from '../utils/edfSignalMap.js';
 import signalsUrl from '/Resources/0000_signals.csv?url';
 import hypnUrl from '/Resources/0000_hypn.csv?url';
 import arouUrl from '/Resources/0000_arou.csv?url';
 import respUrl from '/Resources/0000_resp.csv?url';
+
+const SIGNAL_COLS = [
+  'SaO2',
+  'PR',
+  'EEG(sec)',
+  'ECG',
+  'EMG',
+  'EOG(L)',
+  'EOG(R)',
+  'EEG',
+  'AIRFLOW',
+  'THOR RES',
+  'ABDO RES',
+];
 
 const getFullUrl = (relativeUrl) => `${window.location.origin}${relativeUrl}`;
 
@@ -26,19 +42,21 @@ export async function initLoader() {
 export async function loadPatientData(id) {
   if (!db) throw new Error('Loader not initialized');
 
+  if (id.startsWith('upload_')) return;
+
   const base = import.meta.env.BASE_URL || '/';
 
   let datasets;
   if (id === '0000') {
     datasets = [
-      { name: 'signal', url: getFullUrl(signalsUrl) },
+      { name: 'signal_wide', url: getFullUrl(signalsUrl) },
       { name: 'hypn', url: getFullUrl(hypnUrl) },
       { name: 'arou', url: getFullUrl(arouUrl) },
       { name: 'resp', url: getFullUrl(respUrl) },
     ];
   } else {
     datasets = [
-      { name: 'signal', file: `${id}_signals.csv` },
+      { name: 'signal_wide', file: `${id}_signals.csv` },
       { name: 'hypn', file: `${id}_hypn.csv` },
       { name: 'arou', file: `${id}_arou.csv` },
       { name: 'resp', file: `${id}_resp.csv` },
@@ -62,12 +80,147 @@ export async function loadPatientData(id) {
     );
   }
 
+  await convertSignalToLong();
+
   await coord.exec(
     `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth WHERE FALSE`,
   );
 }
 
-export async function getDuckDB() {
+async function convertSignalToLong() {
+  const cols = SIGNAL_COLS.map((c) => `"${c}"`).join(', ');
+  await coord.exec(`
+    CREATE OR REPLACE TABLE signal AS
+    SELECT time::DOUBLE AS time, channel, value::DOUBLE AS value
+    FROM signal_wide
+    UNPIVOT (
+      value FOR channel IN (${cols})
+    )
+  `);
+  await coord.exec('DROP TABLE IF EXISTS signal_wide');
+}
+
+export async function importFromEDF(file) {
+  if (!db) throw new Error('Loader not initialized');
+
+  const buffer = await file.arrayBuffer();
+  const parsed = parseEDF(buffer);
+
+  const id = `upload_${Date.now()}`;
+
+  await createSignalTable(parsed);
+  await createAnnotationTables(parsed.annotations);
+  await coord.exec(
+    `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth WHERE FALSE`,
+  );
+
+  return id;
+}
+
+async function createSignalTable(parsed) {
+  await coord.exec(
+    `CREATE OR REPLACE TABLE signal (time DOUBLE, channel VARCHAR, value DOUBLE)`,
+  );
+
+  const BATCH = 5000;
+
+  for (const sig of parsed.signals) {
+    if (sig.isAnnotation || !sig.samples || sig.samples.length === 0) continue;
+
+    const channel = mapSignalLabel(sig.label);
+    const dt = parsed.recordDuration / sig.samplesPerRecord;
+    const samples = sig.samples;
+    const total = samples.length;
+
+    for (let start = 0; start < total; start += BATCH) {
+      const end = Math.min(start + BATCH, total);
+      const values = [];
+      for (let i = start; i < end; i++) {
+        const t = (i * dt).toFixed(6);
+        const v = samples[i];
+        if (!isNaN(v) && v !== null && v !== undefined) {
+          if (Number.isFinite(v)) {
+            values.push(`(${t},'${channel}',${v})`);
+          }
+        }
+      }
+      if (values.length > 0) {
+        await coord.exec(`INSERT INTO signal VALUES ${values.join(',')}`);
+      }
+    }
+  }
+}
+
+async function createAnnotationTables(annotations) {
+  const { hypn, arou, resp } = annotationsToTables(annotations);
+
+  const tableDefs = [
+    {
+      name: 'hypn',
+      columns: ['Time', 'Sample#', 'Type', 'Sub', 'Chan', 'Num', 'Aux'],
+      rows: hypn,
+      fmt: (r) =>
+        `('${r.Time}',${r['Sample#']},'${r.Type}',${r.Sub},${r.Chan},${r.Num},'${r.Aux}')`,
+    },
+    {
+      name: 'arou',
+      columns: [
+        'Time',
+        'Sample#',
+        'Type',
+        'Sub',
+        'Chan',
+        'Num',
+        'Aux',
+        'Duration',
+      ],
+      rows: arou,
+      fmt: (r) =>
+        `('${r.Time}',${r['Sample#']},'${r.Type}',${r.Sub},${r.Chan},${r.Num},'${r.Aux}','${r.Duration}')`,
+    },
+    {
+      name: 'resp',
+      columns: [
+        'Time',
+        'Sample#',
+        'Type',
+        'Sub',
+        'Chan',
+        'Num',
+        'Aux',
+        'Duration',
+      ],
+      rows: resp,
+      fmt: (r) =>
+        `('${r.Time}',${r['Sample#']},'${r.Type}',${r.Sub},${r.Chan},${r.Num},'${r.Aux}','${r.Duration}')`,
+    },
+  ];
+
+  for (const td of tableDefs) {
+    if (td.rows.length === 0) {
+      await coord.exec(
+        `CREATE OR REPLACE TABLE ${td.name} AS SELECT ` +
+          `''::VARCHAR AS "Time", ` +
+          `0::INT AS "Sample#", ` +
+          `''::VARCHAR AS "Type", ` +
+          `0::INT AS "Sub", ` +
+          `0::INT AS "Chan", ` +
+          `0::INT AS "Num", ` +
+          `''::VARCHAR AS "Aux"` +
+          (td.columns.includes('Duration') ? `, ''::VARCHAR AS "Duration"` : '') +
+          ` WHERE FALSE`,
+      );
+    } else {
+      const colDefs = td.columns.join(', ');
+      const values = td.rows.map(td.fmt).join(', ');
+      await coord.exec(
+        `CREATE OR REPLACE TABLE ${td.name} AS SELECT * FROM (VALUES ${values}) AS t(${colDefs})`,
+      );
+    }
+  }
+}
+
+export function getDuckDB() {
   return db;
 }
 

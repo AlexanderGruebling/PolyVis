@@ -97,3 +97,10 @@ export async function getPatients() {
     has_signals: patientsWithSignals.has(p.id),
   }));
 }
+
+export function addUploadedPatient(id) {
+  patientsWithSignals.add(id);
+  coordExec(
+    `INSERT INTO patients VALUES ('${id}', NULL, NULL, NULL, NULL)`,
+  ).catch(() => {});
+}

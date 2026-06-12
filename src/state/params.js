@@ -5,7 +5,9 @@ export let maxSamples = null;
 
 export function setMaxSamples(count) {
   maxSamples = count;
-  params.sampleDomain = vg.Param.array([minSamples, count]);
+  if (count > 0) {
+    params.sampleDomain = vg.Param.array([minSamples, count]);
+  }
 }
 
 export let activePatient = '0000';

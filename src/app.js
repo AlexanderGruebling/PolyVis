@@ -24,6 +24,8 @@ import { createTransitionMatrix } from './components/transitionMatrix.js';
 import { initHoverCard } from './components/hoverCard.js';
 import { createPatientBrowser } from './components/patientBrowser.js';
 import { createCohortCompare } from './components/cohortCompare.js';
+import { createUploadZone } from './components/uploadZone.js';
+import { addUploadedPatient } from './data/patientCatalog.js';
 
 const base = import.meta.env.BASE_URL;
 const rendered = new Set();
@@ -133,8 +135,8 @@ function renderOverview() {
   createEventDensity().catch(() => {});
   createTransitionMatrix().catch(() => {});
   q(`CREATE OR REPLACE TABLE spo2_hist AS
-            SELECT ROUND("SaO2", 0) AS bucket, COUNT(*) AS cnt
-            FROM signal WHERE "SaO2" > 0
+            SELECT ROUND(value, 0) AS bucket, COUNT(*) AS cnt
+            FROM signal WHERE channel = 'SaO2' AND value > 0
             GROUP BY bucket ORDER BY bucket`)
     .then(() => {
       document.getElementById('overview-spo2').appendChild(
@@ -257,9 +259,15 @@ function renderAnalysis() {
 }
 
 function renderPatients() {
+  createUploadZone('upload-zone', { onUpload: handleUploadedPatient });
   createPatientBrowser('patient-browser', {
     onSwitchPatient: switchPatient,
   });
+}
+
+async function handleUploadedPatient(id) {
+  addUploadedPatient(id);
+  await switchUploadedPatient(id);
 }
 
 async function switchPatient(id) {
@@ -271,8 +279,8 @@ async function switchPatient(id) {
   try {
     await loadPatientData(id);
     setActivePatient(id);
-    const [{ cnt }] = await q('SELECT COUNT(*) AS cnt FROM signal');
-    setMaxSamples(cnt);
+    const [{ maxTime }] = await q('SELECT MAX(time) AS maxTime FROM signal');
+    setMaxSamples(maxTime != null ? Math.ceil(maxTime) + 1 : 0);
 
     clearRenderedPages();
 
@@ -285,10 +293,21 @@ async function switchPatient(id) {
   }
 }
 
+async function switchUploadedPatient(id) {
+  setActivePatient(id);
+  const [{ maxTime }] = await q('SELECT MAX(time) AS maxTime FROM signal');
+  setMaxSamples(maxTime != null ? Math.ceil(maxTime) + 1 : 0);
+
+  clearRenderedPages();
+
+  history.pushState({}, '', '/');
+  showPage('/');
+}
+
 await initLoader();
 await initPatientCatalog();
-const [{ cnt }] = await q('SELECT COUNT(*) AS cnt FROM signal');
-setMaxSamples(cnt);
+const [{ maxTime }] = await q('SELECT MAX(time) AS maxTime FROM signal');
+setMaxSamples(maxTime != null ? Math.ceil(maxTime) + 1 : 0);
 loadingEl.classList.add('hidden');
 initHoverCard();
 
