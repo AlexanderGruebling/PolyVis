@@ -108,7 +108,7 @@ export async function importFromEDF(file) {
 
   const id = `upload_${Date.now()}`;
 
-  await createSignalTable(parsed);
+  await createSignalTable(parsed, id);
   await createAnnotationTables(parsed.annotations);
   await coord.exec(
     `CREATE OR REPLACE TABLE desats AS SELECT 0::DOUBLE AS x1, 0::DOUBLE AS x2, 0::DOUBLE AS depth WHERE FALSE`,
@@ -117,12 +117,12 @@ export async function importFromEDF(file) {
   return id;
 }
 
-async function createSignalTable(parsed) {
+async function createSignalTable(parsed, uploadId) {
   await coord.exec(
     `CREATE OR REPLACE TABLE signal (time DOUBLE, channel VARCHAR, value DOUBLE)`,
   );
 
-  const BATCH = 5000;
+  let chunkIdx = 0;
 
   for (const sig of parsed.signals) {
     if (sig.isAnnotation || !sig.samples || sig.samples.length === 0) continue;
@@ -132,21 +132,28 @@ async function createSignalTable(parsed) {
     const samples = sig.samples;
     const total = samples.length;
 
-    for (let start = 0; start < total; start += BATCH) {
-      const end = Math.min(start + BATCH, total);
-      const values = [];
+    const CHUNK = 30000;
+
+    for (let start = 0; start < total; start += CHUNK) {
+      const end = Math.min(start + CHUNK, total);
+      const lines = [];
       for (let i = start; i < end; i++) {
-        const t = (i * dt).toFixed(6);
         const v = samples[i];
-        if (!isNaN(v) && v !== null && v !== undefined) {
-          if (Number.isFinite(v)) {
-            values.push(`(${t},'${channel}',${v})`);
-          }
+        if (Number.isFinite(v)) {
+          lines.push(`${(i * dt).toFixed(6)},"${channel}",${v}`);
         }
       }
-      if (values.length > 0) {
-        await coord.exec(`INSERT INTO signal VALUES ${values.join(',')}`);
-      }
+      if (lines.length === 0) continue;
+
+      const csv = 'time,channel,value\n' + lines.join('\n');
+      const name = `edf_${uploadId}_${chunkIdx++}`;
+      await db.registerFileBuffer(
+        name,
+        new TextEncoder().encode(csv),
+      );
+      await coord.exec(
+        `INSERT INTO signal SELECT time::DOUBLE, channel::VARCHAR, value::DOUBLE FROM read_csv_auto('${name}', header=true)`,
+      );
     }
   }
 }

@@ -101,6 +101,6 @@ export async function getPatients() {
 export function addUploadedPatient(id) {
   patientsWithSignals.add(id);
   coordExec(
-    `INSERT INTO patients VALUES ('${id}', NULL, NULL, NULL, NULL)`,
+    `INSERT INTO patients (id) VALUES ('${id}')`,
   ).catch(() => {});
 }
