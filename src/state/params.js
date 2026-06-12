@@ -8,6 +8,12 @@ export function setMaxSamples(count) {
   params.sampleDomain = vg.Param.array([minSamples, count]);
 }
 
+export let activePatient = '0000';
+
+export function setActivePatient(id) {
+  activePatient = id;
+}
+
 export const params = {
   xs: vg.Selection.intersect(),
   dispArou: vg.Param.value(0),

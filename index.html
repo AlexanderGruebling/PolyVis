@@ -15,6 +15,7 @@
     <img src="PolyVisLogo.png" alt="PolyVis Logo" class="logoImg">
     <a href="./" data-route="/" class="nav-link active">Overview</a>
     <a href="./analysis" data-route="/analysis" class="nav-link">Analysis</a>
+    <a href="./patients" data-route="/patients" class="nav-link">Patients</a>
     <a href="./about" data-route="/about" class="nav-link">About</a>
 </nav>
 
@@ -85,6 +86,23 @@
         </div>
     </div>
     <div class="plot-area" id="container"></div>
+</div>
+
+<!-- Patients -->
+<div id="page-patients" class="page patients-layout">
+    <div id="patient-browser"></div>
+</div>
+
+<!-- Cohort comparison modal -->
+<div id="cohort-modal" class="modal-overlay" style="display:none">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Cohort Comparison</h2>
+            <button class="modal-close" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body" id="cohort-comparison"></div>
+    </div>
 </div>
 
 <!-- About -->
